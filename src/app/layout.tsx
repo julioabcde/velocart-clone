@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from '../components/Sidebar';
+import Sidebar, { SidebarItem, SidebarSubItem } from "../components/Sidebar";
+import { BarChart3 } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,14 +27,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`flex min-h-screen ${geistSans.variable} ${geistMono.variable}`}
       >
-        <div style={{display: "flex"}}>
-          <Sidebar/>
-          <main style={{flex: 1, padding: "1rem"}}>
-            {children}
-          </main>
-        </div>
+        <Sidebar>
+          <SidebarItem
+            icon={<BarChart3 size={20} />}
+            text="Login"
+            href="/login"
+          >
+            <SidebarSubItem text="Sales Report" href="/reports/sales" />
+            <SidebarSubItem
+              text="Market Basket Analysis Report"
+              href="/reports/market-basket-analysis"
+            />
+          </SidebarItem>
+        </Sidebar>
+        <main className="flex-1 p-6">{children}</main>
       </body>
     </html>
   );

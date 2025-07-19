@@ -1,8 +1,6 @@
 export default function LoginPage() {
     return (
-        <main>
-            <h1>Login</h1>
-            <p>This is Login Page</p>
-        </main>
+        <h1>AHALAOOSAO</h1>
+        
     );
 }

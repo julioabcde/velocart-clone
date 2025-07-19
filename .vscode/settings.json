@@ -1,4 +1,8 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true
+  "gitlens.views.scm.grouped.views": {
+    "commits": false,
+    "branches": false,
+    "stashes": false,
+    "repositories": false
+  }
 }

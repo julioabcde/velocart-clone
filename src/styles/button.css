@@ -1,0 +1,124 @@
+/* Base button styles */
+.btn {
+    @apply outline-none align-middle transition-all ease-in-out duration-200;
+}
+
+/* Square button */
+.btn-square {
+    @apply rounded-none;
+}
+
+/* Pill button */
+.btn-pill {
+    @apply rounded-full;
+}
+
+/* Text button (cursor behavior) */
+.btn-text {
+    @apply cursor-text;
+}
+
+/* Non-text button (cursor behavior) */
+.btn:not(.btn-text) {
+    @apply cursor-pointer;
+}
+
+/* Borderless button */
+.btn-borderless {
+    @apply border-transparent;
+}
+
+/* Icon size in button */
+.btn i {
+    @apply inline-flex text-lg pr-2 align-middle;
+}
+
+.btn .svg-icon {
+    @apply mr-2 w-5 h-5; /* Size of 18px (default size) */
+}
+
+/* Button Sizes */
+.btn-xs i {
+    @apply text-base pr-1;
+}
+
+.btn-xs .svg-icon {
+    @apply mr-1 w-4 h-4; /* 16px */
+}
+
+.btn-sm i {
+    @apply text-lg pr-1.5;
+}
+
+.btn-sm .svg-icon {
+    @apply mr-1.5 w-4 h-4; /* 16px */
+}
+
+.btn-lg i {
+    @apply text-xl pr-3;
+}
+
+.btn-lg .svg-icon {
+    @apply mr-3 w-5 h-5; /* 20px */
+}
+
+/* Button Icon Styles */
+.btn-icon {
+    @apply inline-flex items-center justify-center p-0 h-10 w-10; /* Adjust $input-height to 2.5rem or as needed */
+}
+
+.btn-icon.btn-xs {
+    @apply h-8 w-8; /* 2rem size */
+}
+
+.btn-icon.btn-sm {
+    @apply h-9 w-9; /* 2.25rem size */
+}
+
+.btn-icon.btn-lg {
+    @apply h-12 w-12; /* 3rem size */
+}
+
+/* Circle Icon */
+.btn-icon.btn-circle {
+    @apply rounded-full;
+}
+
+/* Dropdown Toggle Styles */
+.dropdown-toggle {
+    @apply inline-flex items-center justify-center text-center text-xs transition-all duration-200 ease-in-out;
+
+    &:before,
+    &:after {
+        @apply inline-block text-center align-middle border-0 font-normal;
+        font-size: 0.75rem; /* Adjust size */
+        line-height: 0;
+    }
+
+    &.dropdown-toggle-split {
+        @apply opacity-90;
+
+        &:after,
+        &:before {
+            @apply m-0;
+        }
+    }
+
+    .show > &,
+    &.active,
+    &:focus,
+    &:active,
+    &:hover {
+        @apply transition-all duration-200 ease-in-out;
+    }
+}
+
+/* Clean Button */
+.btn-clean {
+    @apply bg-transparent border-0 text-gray-500;
+}
+
+.btn-clean:hover {
+    @apply bg-gray-100 text-blue-500;
+}
+

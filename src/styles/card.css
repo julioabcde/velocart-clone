@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Base Card */
+  .card-custom {
+    @apply bg-white border-0 shadow-[0px_0px_30px_0px_rgba(82,63,105,0.05)] rounded-[0.42rem] p-0;
+  }
+
+  /* Header */
+  .card-custom > .card-header {
+    @apply flex justify-between items-stretch flex-wrap bg-transparent py-0;
+    /* Sass: min-height: 70px; */
+    min-height: 70px;
+  }
+
+  /* Title */
+  .card-custom > .card-header .card-title {
+    @apply flex items-center my-2 ml-0;
+  }
+  .card-custom > .card-header .card-title .card-icon {
+    @apply mr-3 leading-none;
+  }
+  .card-custom > .card-header .card-title .card-icon i,
+  .card-custom > .card-header .card-title .card-icon .svg-icon {
+    @apply text-[1.25rem] text-[#7E8299] leading-none;
+  }
+  .card-custom > .card-header .card-title,
+  .card-custom > .card-header .card-label {
+    @apply font-medium text-[1.275rem] text-[#181C32];
+  }
+  .card-custom > .card-header .card-title .card-label {
+    @apply mr-3 flex-wrap;
+  }
+  .card-custom > .card-header .card-title small {
+    @apply text-[1rem] text-[#B5B5C3];
+  }
+
+  /* Toolbar */
+  .card-custom > .card-header .card-toolbar {
+    @apply flex items-center my-2 flex-wrap;
+  }
+
+  /* Tabs style */
+  .card-custom > .card-header.card-header-tabs-line {
+    @apply py-0 items-stretch !important;
+  }
+  .card-custom > .card-header.card-header-tabs-line .card-toolbar {
+    @apply m-0;
+  }
+  .card-custom > .card-header.card-header-tabs-line .nav {
+    @apply border-b-transparent;
+  }
+  .card-custom > .card-header.card-header-tabs-line .nav .nav-item {
+    @apply items-stretch;
+  }
+  .card-custom > .card-header.card-header-tabs-line .nav .nav-link {
+    /* Sass: padding-top/bottom: $card-spacer-y (2rem) */
+    @apply py-[2rem];
+  }
+
+  /* Header-right */
+  .card-custom > .card-header.card-header-right {
+    @apply justify-end;
+  }
+
+  /* Body */
+  .card-custom > .card-body {
+    /* Sass: padding: 2rem 2.25rem */
+    @apply p-[2rem] px-[2.25rem];
+  }
+
+  /* Footer */
+  .card-custom > .card-footer {
+    @apply bg-transparent;
+  }
+
+  /* Scrollable area */
+  .card-custom .card-scroll {
+    @apply relative overflow-auto;
+  }
+
+  /* Full height variants */
+  .card-custom.card-stretch {
+    @apply flex flex-col h-full;
+  }
+  .card-custom.card-stretch.gutter-b {
+    /* Sass: height: calc(100% - 25px) */
+    @apply h-[calc(100%-25px)];
+  }
+  .card-custom.card-stretch.card-stretch-half {
+    @apply h-1/2;
+  }
+  .card-custom.card-stretch.card-stretch-half.gutter-b {
+    @apply h-[calc(50%-25px)];
+  }
+  .card-custom.card-stretch.card-stretch-third {
+    @apply h-[33.33%];
+  }
+  .card-custom.card-stretch.card-stretch-third.gutter-b {
+    @apply h-[calc(33.33%-25px)];
+  }
+  .card-custom.card-stretch.card-stretch-fourth {
+    @apply h-1/4;
+  }
+  .card-custom.card-stretch.card-stretch-fourth.gutter-b {
+    @apply h-[calc(25%-25px)];
+  }
+
+  /* Fit style */
+  .card-custom.card-fit > .card-header {
+    @apply border-b-0;
+  }
+  .card-custom.card-fit > .card-footer {
+    @apply border-t-0;
+  }
+
+  /* Extra horizontal padding */
+  .card-custom.card-space {
+    @apply px-[2.25rem];
+  }
+  .card-custom.card-space > .card-header,
+  .card-custom.card-space > .card-body,
+  .card-custom.card-space > .card-footer {
+    @apply px-0;
+  }
+
+  /* Sticky header */
+  .card-custom.card-sticky > .card-header {
+    @apply transition-all duration-300;
+    min-height: 70px;
+  }
+  .card-sticky-on .card-custom.card-sticky > .card-header {
+    @apply fixed top-0 left-0 right-0 bg-white
+      shadow-[0px_1px_15px_1px_rgba(69,65,78,0.1)] z-[101];
+  }
+
+  /* Transparent & shadowless */
+  .card-custom.card-transparent { @apply bg-transparent; }
+  .card-custom.card-shadowless { @apply shadow-none; }
+
+  /* Reset horizontal padding */
+  .card-custom.card-px-0 .card-header,
+  .card-custom.card-px-0 .card-body,
+  .card-custom.card-px-0 .card-footer {
+    @apply px-0;
+  }
+
+  /* Border style */
+  .card-custom.card-border {
+    @apply border border-[#EBEDF3] shadow-none;
+  }
+
+  /* Collapsed */
+  .card-custom.card-collapsed > form,
+  .card-custom.card-collapsed > .card-body {
+    @apply hidden;
+  }
+
+  /* Toggle‐icon transitions (insert your transition if needed) */
+  .card-custom .card-toolbar [data-card-tool="toggle"] i {
+    /* @apply transition-[your-value]; */
+  }
+  .card-custom.card-collapsed .card-toolbar [data-card-tool="toggle"] i {
+    /* @apply rotate-180 transition-[your-value]; */
+  }
+
+  /* Utilities */
+  .card-spacer {
+    @apply p-[2rem_2.25rem] !important;
+  }
+  .card-spacer-x {
+    @apply px-[2.25rem] !important;
+  }
+  .card-spacer-y {
+    @apply py-[2rem] !important;
+  }
+  .card-rounded {
+    @apply rounded-[0.42rem];
+  }
+  .card-rounded-top {
+    @apply rounded-t-[0.42rem];
+  }
+  .card-rounded-bottom {
+    @apply rounded-b-[0.42rem];
+  }
+
+  /* Mobile */
+  @screen sm {
+    .card-custom > .card-header {
+      @apply min-h-0 py-2;
+    }
+  }
+}

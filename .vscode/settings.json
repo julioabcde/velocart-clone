@@ -1,0 +1,8 @@
+{
+  "gitlens.views.scm.grouped.views": {
+    "commits": false,
+    "branches": false,
+    "stashes": false,
+    "repositories": false
+  }
+}

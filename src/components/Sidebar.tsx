@@ -1,171 +1,111 @@
-"use client";
+// 'use client';
 
-import { MoreVertical, ChevronLast, ChevronFirst } from "lucide-react";
-import Link from "next/link";
-import { useContext, createContext, useState, ReactNode } from "react";
-// 1. Tipe & Context
-type SidebarContextType = {
-  expanded: boolean;
-};
+// import { SIDEBAR_CONFIG } from '@/constants/sidebar.config';
+// import { useSidebar } from './SidebarContext';
+// import Link from 'next/link';
+// import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
+// export default function Sidebar() {
+//   const { collapsed, toggleCollapse } = useSidebar();
 
-// 2. Sidebar (wrapper utama)
-interface SidebarProps {
-  children: ReactNode;
-}
+//   return (
+//     <aside
+//       className={`h-screen bg-gray-900 text-white transition-all duration-300 ${collapsed ? 'w-18' : 'w-64'
+//         }`}
+//     >
+//       <div className="flex items-center justify-center p-4">
+//         {!collapsed ? (
+//           <>
+//             <h1 className="text-lg font-bold flex-1">MyApp</h1>
+//             <button onClick={toggleCollapse}>
+//               <ChevronLeft />
+//             </button>
+//           </>
+//         ) : (
+//           <button onClick={toggleCollapse}>
+//             <ChevronRight />
+//           </button>
+//         )}
+//       </div>
 
-// Komponen utama wrapper sidebar
-export default function Sidebar({ children }: SidebarProps) {
-  const [expanded, setExpanded] = useState(true);
+
+//       <nav className="mt-4 space-y-2">
+//         {SIDEBAR_CONFIG.map((item, i) => {
+//           const Icon = item.icon;
+//           return (
+//             <div key={i} className="px-4">
+//               <Link
+//                 href={item.href || '#'}
+//                 className="flex items-center gap-4 py-2 hover:bg-gray-800 rounded-md px-2"
+//               >
+//                 {Icon && <Icon size={20} />}
+//                 {!collapsed && <span>{item.label}</span>}
+//               </Link>
+
+//               {!collapsed &&
+//                 item.subItem?.map((sub, j) => (
+//                   <Link
+//                     key={j}
+//                     href={sub.href}
+//                     className="ml-8 text-sm block py-1 hover:text-gray-300"
+//                   >
+//                     {sub.label}
+//                   </Link>
+//                 ))}
+//             </div>
+//           );
+//         })}
+//       </nav>
+//     </aside>
+//   );
+// }
+
+// components/sidebar/Sidebar.tsx
+// Sidebar.tsx
+'use client';
+
+import { useState } from 'react';
+import { FaBars } from 'react-icons/fa';
+import SidebarItem from './SidebarItem';
+import SidebarSubMenu from './SidebarSubMenu';
+import { SIDEBAR_CONSTANT } from '@/constants/sidebar.config'; 
+
+export default function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside className="h-screen">
-      <nav className="h-full flex flex-col bg-white border-r shadow-sm">
-        {/* Header: Logo + Toggle */}
-        <div className="p-4 pb-2 flex justify-between items-center">
-          <img
-            src="https://img.logoipsum.com/243.svg"
-            className={`overflow-hidden transition-all ${
-              expanded ? "w-32" : "w-0"
-            }`}
-            alt="Logo"
-          />
-          <button
-            onClick={() => setExpanded((curr) => !curr)}
-            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
-          >
-            {expanded ? <ChevronFirst /> : <ChevronLast />}
+    <div className="flex h-screen sticky top-0">
+      <aside className={`bg-gray-900 text-white p-2 transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'}`}>
+        <div className="flex justify-between items-center p-4">
+          {!collapsed && <h1 className="text-lg font-bold">MyApp</h1>}
+          <button onClick={() => setCollapsed(!collapsed)}>
+            <FaBars />
           </button>
         </div>
 
-        {/* Body: Item list */}
-        <SidebarContext.Provider value={{ expanded }}>
-          <ul className="flex-1 px-3">{children}</ul>
-        </SidebarContext.Provider>
-
-        {/* Footer: User profile */}
-        <div className="border-t flex p-3">
-          <img
-            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
-            alt="User Avatar"
-            className="w-10 h-10 rounded-md"
-          />
-          <div
-            className={`flex justify-between items-center overflow-hidden transition-all ${
-              expanded ? "w-52 ml-3" : "w-0"
-            }`}
-          >
-            <div className="leading-4">
-              <h4 className="font-semibold">Julio</h4>
-              <span className="text-xs text-gray-600">
-                media.julio68@gmail.com
-              </span>
-            </div>
-            <MoreVertical size={20} />
-          </div>
-        </div>
-      </nav>
-    </aside>
-  );
-}
-
-// 3. SidebarItem
-interface SidebarItemProps {
-  icon: ReactNode;
-  text: string;
-  href?: string;
-  active?: boolean;
-  alert?: boolean;
-  children?: ReactNode;
-}
-export function SidebarItem({
-  icon,
-  text,
-  href,
-  active = false,
-  alert = false,
-  children,
-}: SidebarItemProps) {
-  const context = useContext(SidebarContext);
-  if (!context) {
-    throw new Error("SidebarItem must be used within <Sidebar>.");
-  }
-
-  const { expanded } = context;
-
-  const content = (
-    <div className="flex items-center cursor-pointer">
-      {icon}
-      <span
-        className={`overflow-hidden transition-all ${
-          expanded ? "w-52 ml-3" : "w-0"
-        }`}
-      >
-        {text}
-      </span>
-
-      {alert && (
-        <div
-          className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${
-            expanded ? "" : "top-2"
-          }`}
-        />
-      )}
+        <nav className="space-y-2">
+          {SIDEBAR_CONSTANT.map((item, i) =>
+            item.subItem ? (
+              <SidebarSubMenu
+                key={i}
+                label={item.label}
+                subItems={item.subItem}
+                collapsed={collapsed}
+              />
+            ) : (
+              <SidebarItem
+                key={i}
+                label={item.label}
+                href={item.href}
+                icon={item.icon}
+                collapsed={collapsed}
+              />
+            )
+          )}
+        </nav>
+      </aside>
     </div>
   );
-
-  return (
-    <li
-      className={`
-          relative flex flex-col py-2 px-3 my-1
-          font-medium rounded-md transition-colors group
-          ${
-            active
-              ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-              : "hover:bg-indigo-50 text-gray-600"
-          }
-        `}
-    >
-      {href ? <Link href={href}>{content}</Link> : content}
-
-      {/* Sub Items */}
-      {children && (
-        <ul className={`pl-8 mt-1 ${expanded ? "" : "hidden"}`}>{children}</ul>
-      )}
-    </li>
-  );
 }
 
-// 4. SidebarSubItem
-interface SidebarSubItemProps {
-  text: string;
-  href?: string;
-  active?: boolean;
-}
-export function SidebarSubItem({
-  text,
-  href,
-  active = false,
-}: SidebarSubItemProps) {
-  const className = `
-      block py-1 px-2 rounded-md text-sm transition-colors
-      ${
-        active
-          ? "bg-indigo-100 text-indigo-800"
-          : "hover:bg-gray-100 text-gray-600"
-      }
-    `;
 
-  return (
-    <li>
-      {href ? (
-        <Link href={href} className={className}>
-          {text}
-        </Link>
-      ) : (
-        <span className={className}>{text}</span>
-      )}
-    </li>
-  );
-}

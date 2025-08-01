@@ -137,8 +137,12 @@
   }
 
   /* Transparent & shadowless */
-  .card-custom.card-transparent { @apply bg-transparent; }
-  .card-custom.card-shadowless { @apply shadow-none; }
+  .card-custom.card-transparent {
+    @apply bg-transparent;
+  }
+  .card-custom.card-shadowless {
+    @apply shadow-none;
+  }
 
   /* Reset horizontal padding */
   .card-custom.card-px-0 .card-header,
@@ -191,5 +195,75 @@
     .card-custom > .card-header {
       @apply min-h-0 py-2;
     }
+  }
+
+  /* ----------- Filter Input Styling ----------- */
+  .filter-border {
+    @apply w-full border px-3 py-2 rounded; /* Full width, border, padding, and rounded corners for the input */
+  }
+
+  .filter-text {
+    @apply block text-gray-500 text-sm; /* Block-level text with gray color and small font for the filter label */
+  }
+
+  /* ----------- Table Container Styling ----------- */
+  .table-responsive-scrollable {
+    /* @apply rounded-[15px] mb-[30px] max-h-[22vmax] overflow-x-scroll; */
+    @apply rounded-[15px] mb-[30px] max-h-[60vh] overflow-x-auto overflow-y-auto;
+    position: relative;
+    /* Rounded corners, bottom margin, max height based on viewport size, and horizontal scroll if content overflows */
+  }
+
+  /* ----------- General Table Styling ----------- */
+  .table {
+    @apply text-sm table-auto w-full border-separate border-spacing-0;
+    /* Small text, automatic table layout, full width, separate table borders, and no spacing between rows/columns */
+  }
+
+  /* ----------- Zebra Stripes for Table Rows ----------- */
+  .table tbody tr:nth-child(even) {
+    @apply bg-gray-100; /* Light gray background for even rows */
+  }
+
+  .table tbody tr:nth-child(odd) {
+    @apply bg-white; /* White background for odd rows */
+  }
+
+  /* ----------- Hover Effect for Table Rows ----------- */
+  .table tbody tr:hover {
+    @apply bg-gray-200; /* Light gray highlight when hovering over a row */
+  }
+
+  /* ----------- Table Borders for Cells ----------- */
+  .table {
+    th,
+    td {
+      @apply border-b border-gray-300; /* Light gray border at the bottom of each cell */
+    }
+  }
+
+  /* ----------- Table Header Styling ----------- */
+  .table thead {
+    th {
+      @apply bg-blue-500 text-white font-bold py-2 px-4 sticky top-0 z-10;
+      /* Blue background for header, white text, bold font, and padding for header cells */
+    }
+  }
+
+  /* ----------- Vertical Alignment for Table Header and Cells ----------- */
+  .table-head-custom {
+    @apply align-middle; /* Vertically center the header content */
+  }
+
+  .table-vertical-center {
+    th,
+    td {
+      @apply py-3 px-5 align-middle; /* Added padding and vertical centering for both header and cell content */
+    }
+  }
+
+  /* ----------- Action Button Styling (Edit, Delete) ----------- */
+  .align-action {
+    @apply flex justify-center gap-4 items-center; /* Flexbox for horizontal alignment of buttons with space between them and vertical centering */
   }
 }

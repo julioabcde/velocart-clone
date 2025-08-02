@@ -7,3 +7,9 @@
   --foreground: #171717;
 }
 
+@layer components {
+  /* kill off the left presets pane */
+  .rdrDefinedRanges {
+    @apply hidden;
+  }
+}

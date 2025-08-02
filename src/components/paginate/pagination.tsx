@@ -1,18 +1,7 @@
-// components/Pagination.tsx
 import React from 'react'
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react'
-import { paginateUtils } from '@/utils/paginateUtils'
-
-export interface PaginationProps {
-  page: number
-  pageSize: number
-  total: number
-  pageSizes: number[]
-  onPaginate: (state: { page: number; pageSize: number }) => void
-  siblingCount?: number
-  boundaryCount?: number
-  showFirstLast?: boolean
-}
+import { PaginationProps } from '@/models/UIModels'
+import { paginateUtils } from '@/services/UIService'
 
 export default function Pagination({
   page,
@@ -24,15 +13,14 @@ export default function Pagination({
   boundaryCount = 1,
   showFirstLast = false,
 }: PaginationProps) {
-  const totalPages = Math.ceil(total / pageSize)
-//   if (totalPages < 2) return null
+  const totalPages = Math.ceil(total / pageSize);
 
-  const pages = paginateUtils(totalPages, page, siblingCount, boundaryCount)
+  const pages = paginateUtils(totalPages, page, siblingCount, boundaryCount);
 
   const change = (newPage: number, newSize = pageSize) => {
-    if (newPage < 1 || newPage > totalPages) return
-    onPaginate({ page: newPage, pageSize: newSize })
-  }
+    if (newPage < 1 || newPage > totalPages) return;
+    onPaginate({ page: newPage, pageSize: newSize });
+  };
 
   return (
     <div className="flex flex-wrap items-center justify-between py-4">
@@ -41,10 +29,10 @@ export default function Pagination({
         <label className="text-sm font-medium">Show</label>
         <select
           value={pageSize}
-          onChange={e => change(1, +e.target.value)}
+          onChange={(e) => change(1, +e.target.value)}
           className="px-2 py-1 border rounded text-sm"
         >
-          {pageSizes.map(size => (
+          {pageSizes.map((size) => (
             <option key={size} value={size}>
               {size}
             </option>
@@ -80,7 +68,7 @@ export default function Pagination({
           </li>
 
           {pages.map((p, i) =>
-            p === '…' ? (
+            p === "…" ? (
               <li key={`dot-${i}`} className="px-2 select-none">
                 …
               </li>
@@ -88,12 +76,14 @@ export default function Pagination({
               <li key={p}>
                 <button
                   onClick={() => change(p as number)}
-                  aria-current={p === page ? 'page' : undefined}
+                  aria-current={p === page ? "page" : undefined}
                   className={`
                     px-3 py-1 border rounded
-                    ${p === page
-                      ? 'bg-blue-500 text-white border-transparent'
-                      : 'hover:bg-gray-100'}
+                    ${
+                      p === page
+                        ? "bg-blue-500 text-white border-transparent"
+                        : "hover:bg-gray-100"
+                    }
                   `}
                 >
                   {p}
@@ -128,5 +118,5 @@ export default function Pagination({
         </ul>
       </nav>
     </div>
-  )
+  );
 }

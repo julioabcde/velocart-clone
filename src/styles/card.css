@@ -31,7 +31,7 @@
     @apply font-medium text-[1.275rem] text-[#181C32];
   }
   .card-custom > .card-header .card-title .card-label {
-    @apply mr-3 flex-wrap;
+    @apply ml-8 flex-wrap;
   }
   .card-custom > .card-header .card-title small {
     @apply text-[1rem] text-[#B5B5C3];
@@ -39,6 +39,9 @@
 
   /* Toolbar */
   .card-custom > .card-header .card-toolbar {
+    @apply flex items-center my-2 flex-wrap;
+  }
+  .card-custom > .card-header .card-toolbar .card {
     @apply flex items-center my-2 flex-wrap;
   }
 
@@ -210,7 +213,9 @@
   .table-responsive-scrollable {
     /* @apply rounded-[15px] mb-[30px] max-h-[22vmax] overflow-x-scroll; */
     @apply rounded-[15px] mb-[30px] max-h-[60vh] overflow-x-auto overflow-y-auto;
-    position: relative;
+    position: sticky;
+    top: 0;
+    /* z-index: 0; */
     /* Rounded corners, bottom margin, max height based on viewport size, and horizontal scroll if content overflows */
   }
 

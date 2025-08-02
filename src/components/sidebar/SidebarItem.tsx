@@ -1,20 +1,9 @@
-// export { default as Sidebar } from './Sidebar';
-// export { SidebarProvider } from './SidebarContext';
-
-// components/sidebar/SidebarItem.tsx
 'use client';
 
-import { ElementType } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-
-interface SidebarItemProps {
-  label: string;
-  href: string;
-  icon?: ElementType;
-  collapsed: boolean;
-}
+import { SidebarItemProps } from '@/models/UIModels';
 
 export default function SidebarItem({ label, href, icon: Icon, collapsed }: SidebarItemProps) {
   const pathname = usePathname();

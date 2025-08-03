@@ -1,14 +1,14 @@
 "use client";
 
 import DateRangePickerV1 from "@/components/datepicker/DateRangePicker";
-import { GeneralParam, PaginatedData, RequestStructure } from "@/models/GeneralDTO";
+import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
 import { Product } from "@/models/Product";
 import { useEffect, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import { fetchData } from "@/services/GeneralService";
-import Pagination from "@/components/paginate/Pagination";
+import Pagination from "@/components/paginate/Pagination"
 
-export default function TestLaravel() {
+export default function ManageProduct() {
   const [data, setData] = useState<Product[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -16,7 +16,7 @@ export default function TestLaravel() {
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
 
-  const param: GeneralParam = {
+  const param: PaginationParam = {
     pagination: true,
     perPage: pageSize,
     page,
@@ -24,7 +24,7 @@ export default function TestLaravel() {
     filter: "",
   };
 
-  const structure: RequestStructure<GeneralParam> = {
+  const request: RequestStructure<PaginationParam> = {
     api: "/get-all-products",
     method: "POST",
     body: param
@@ -35,16 +35,26 @@ export default function TestLaravel() {
     setError(false);
 
     try {
-      const response = await fetchData<PaginatedData<Product>>(structure);
-      const items = response.data.data;
-      const totalCount = response.data.total;
-
-      setData(items);
-      setTotal(totalCount);
-    } catch (err) {
+      const response = await fetchData<PaginatedData<Product>>(request);
+      if (response.responseCode != '00') {
+        console.log("responseDate: ", response.responseDate);
+        console.log("responseCode: ", response.responseCode);
+        console.log("responseDesc: ", response.responseDesc);
+        console.log("message: ", response.message);
+        setError(true);
+      }
+      else {
+        const items = response.data.data;
+        const totalCount = response.data.total;
+        setData(items);
+        setTotal(totalCount);
+      }
+    }
+    catch (err) {
       console.error("Fetch error:", err);
       setError(true);
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };

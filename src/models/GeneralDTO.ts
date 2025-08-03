@@ -1,4 +1,4 @@
-export interface GeneralParam {
+export interface PaginationParam {
   pagination?: boolean;
   perPage?: number;
   page?: number;
@@ -13,9 +13,15 @@ export interface RequestStructure<TBody> {
   headers?: HeadersInit;
 }
 
-export interface PaginatedData<TResponse> {
-    data: {
-        data: TResponse[],
-        total: number
-    }
+export interface PaginatedData<TList> {
+  data: TList[];
+  total: number;
+}
+
+export interface GeneralResponse<TData> {
+  responseDate: string,
+  responseCode: string,
+  responseDesc: string,
+  message: string,
+  data: TData
 }

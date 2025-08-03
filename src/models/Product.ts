@@ -14,10 +14,10 @@ export interface Product {
 }
 
 export interface ProductDTO {
-  product_id?: string;
-  category_id?: number;
-  product_name?: string;
+  productId?: string;
+  categoryId?: number;
+  productName?: string;
   unit?: string;
-  base_price?: number;
-  selling_price?: number;
+  basePrice?: number;
+  sellingPrice?: number;
 }

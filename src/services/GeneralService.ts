@@ -1,20 +1,18 @@
 import { BASE_URL } from "@/constants/GlobalConstant";
-import { RequestStructure } from "@/models/GeneralDTO";
+import { GeneralResponse, RequestStructure } from "@/models/GeneralDTO";
 
-const defaultHeader: HeadersInit = {
-  "Content-Type": "application/json",
-  // 'Authorization': 'Bearer YOUR_TOKEN_HERE', // optional
-};
+export async function fetchData<TData, TBody = unknown> (request: RequestStructure<TBody>): Promise<GeneralResponse<TData>> {
+  const { api, method, body, headers } = request;
 
-export async function fetchData<TResponse, TBody = unknown> (structure: RequestStructure<TBody>): Promise<TResponse> {
-  const { api, method, body, headers = defaultHeader } = structure;
+  const token = typeof window !== "undefined" ? localStorage.getItem("jwt_token") : null;
 
-  const response = await fetch(BASE_URL + api, { method, headers, body: body ? JSON.stringify(body) : undefined, });
+  const finalHeaders: HeadersInit = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Fetch error: ${response.status} - ${errorText}`);
-  }
+  const response = await fetch(BASE_URL + api, { method, headers: finalHeaders, body: body ? JSON.stringify(body) : undefined, });
 
   return response.json();
 }

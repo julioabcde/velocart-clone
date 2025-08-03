@@ -29,3 +29,7 @@ export interface PaginationProps {
   boundaryCount?: number
   showFirstLast?: boolean
 }
+
+export interface SpinnerProps {
+  message?: string;
+}

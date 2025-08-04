@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import '../styles/card.css';
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/sidebar/Sidebar';
 import Footer from '../components/footer/footer'
 import Header from '../components/header/HeaderIndex'
 
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Sidebar />
           <div className="flex flex-col flex-1 overflow-x-hidden">
             <Header /> 
-            <main className="flex-1 overflow-y-auto">{children}</main>
+            <main className="flex-1 overflow-y-auto relative">{children}</main>
             <Footer />
           </div>
         </div>
@@ -37,4 +37,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-

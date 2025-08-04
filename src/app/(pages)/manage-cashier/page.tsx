@@ -1,35 +1,9 @@
-// export default function ManageCashier() {
-//     return (
-//         <div className="card card-custom gutter-b">
-//             <div className="card-header">
-//                 <div className="card-title">
-//                     <h3 className="card-label">Manage Cashier</h3>
-//                 </div>
-//             </div>
-
-//             <div className="card-toolbar">
-//                 <button type="button" className="btn btn-primary">Excel</button>
-//             </div>
-
-//             <div className="card-body">
-//                 {/* Add your card content here */}
-//                 <p>Here you can manage the cashier operations. More content will be added as required.</p>
-//             </div>
-
-//             <div className="card-footer">
-//                 {/* Add any footer content here */}
-//                 <button type="button" className="btn btn-secondary">Save</button>
-//             </div>
-//         </div>
-//     );
-// }
-
 'use client';
 
 import React from 'react';
 import { FaSyncAlt } from 'react-icons/fa';
 
-export default function LaporanBalitaCard() {
+export default function ManageCashier() {
   // dummy data for preview
   const items = [
     {

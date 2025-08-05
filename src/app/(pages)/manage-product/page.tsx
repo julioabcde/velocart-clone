@@ -6,7 +6,7 @@ import { Product } from "@/models/Product";
 import { useEffect, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import { fetchData } from "@/services/GeneralService";
-import Pagination from "@/components/paginate/Pagination"
+import Pagination from "@/components/pagination/Pagination";
 
 export default function ManageProduct() {
   const [data, setData] = useState<Product[]>([]);

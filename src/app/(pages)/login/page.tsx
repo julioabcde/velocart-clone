@@ -12,6 +12,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginDTO, string>>>({});
   const router = useRouter();
 
   const param: LoginDTO = {
@@ -23,6 +24,21 @@ export default function Login() {
     api: "/login",
     method: "POST",
     body: param,
+  };
+
+  const validateLogin = () => {
+    const errors: Partial<Record<keyof LoginDTO, string>> = {};
+
+    if (!staffId.trim()) {
+      errors.staffId = "Staff ID is required!";
+    }
+
+    if (!password.trim()) {
+      errors.password = "Password is required!";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length > 0;
   };
 
   const login = async () => {
@@ -59,6 +75,13 @@ export default function Login() {
     }
   };
 
+  const handleLogin = async () => {
+    const hasError = validateLogin();
+    if (!hasError) {
+      await login();
+    }
+  }
+
   return (
     <div className="h-full flex items-center justify-center">
       <div className="flex flex-col items-center gap-5">
@@ -74,10 +97,21 @@ export default function Login() {
             id="staffId"
             name="staffId"
             value={staffId}
-            onChange={(e) => setStaffId(e.target.value)}
+            required={true}
+            onChange={(e) => {
+              setStaffId(e.target.value);
+              if (fieldErrors.staffId) {
+                setFieldErrors((prev) => ({ ...prev, staffId: undefined }));
+              }
+            }}
             placeholder="Enter Staff ID"
-            className="col-span-4 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+            className={`col-span-4 rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.staffId ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
           />
+          {fieldErrors.staffId && (
+            <p className="col-start-3 col-span-4 text-sm text-red-600">
+              {fieldErrors.staffId}
+            </p>
+          )}
         </div>
         <div className="grid grid-cols-6 items-center mt-3 mb-2 w-full max-w-lg">
           <label
@@ -91,15 +125,25 @@ export default function Login() {
             id="password"
             name="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) {
+                setFieldErrors((prev) => ({ ...prev, password: undefined }));
+              }
+            }}
             placeholder="Enter Password"
-            className="col-span-4 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+            className={`col-span-4 rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
           />
+          {fieldErrors.password && (
+            <p className="col-start-3 col-span-4 text-sm text-red-600">
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
         <div className="flex justify-center mt-3 mb-2 w-full max-w-lg">
           <button
             type="button"
-            onClick={login}
+            onClick={handleLogin}
             className="rounded-md border border-gray-300 px-3 py-2 text-base text-center text-white bg-green-600 hover:bg-green-700"
           >
             Login

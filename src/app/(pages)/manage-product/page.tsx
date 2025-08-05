@@ -1,12 +1,16 @@
 "use client";
 
 import DateRangePickerV1 from "@/components/datepicker/DateRangePicker";
-import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
+import {
+  PaginatedData,
+  PaginationParam,
+  RequestStructure,
+} from "@/models/GeneralDTO";
 import { Product } from "@/models/Product";
 import { useEffect, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import { fetchData } from "@/services/GeneralService";
-import Pagination from "@/components/paginate/Pagination"
+import Pagination from "@/components/pagination/Pagination";
 
 export default function ManageProduct() {
   const [data, setData] = useState<Product[]>([]);
@@ -27,7 +31,7 @@ export default function ManageProduct() {
   const request: RequestStructure<PaginationParam> = {
     api: "/get-all-products",
     method: "POST",
-    body: param
+    body: param,
   };
 
   const loadData = async () => {
@@ -36,25 +40,22 @@ export default function ManageProduct() {
 
     try {
       const response = await fetchData<PaginatedData<Product>>(request);
-      if (response.responseCode != '00') {
+      if (response.responseCode != "00") {
         console.log("responseDate: ", response.responseDate);
         console.log("responseCode: ", response.responseCode);
         console.log("responseDesc: ", response.responseDesc);
         console.log("message: ", response.message);
         setError(true);
-      }
-      else {
+      } else {
         const items = response.data.data;
         const totalCount = response.data.total;
         setData(items);
         setTotal(totalCount);
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.error("Fetch error:", err);
       setError(true);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -135,7 +136,9 @@ export default function ManageProduct() {
                 data.map((item) => (
                   <tr key={item.product_id}>
                     <td className="text-center">{item.product_id}</td>
-                    <td className="text-center truncate max-w-[200px]">{item.product_name}</td>
+                    <td className="text-center truncate max-w-[200px]">
+                      {item.product_name}
+                    </td>
                     <td className="text-center">{item.base_price}</td>
                     <td className="text-center">{item.selling_price}</td>
                     <td className="text-center">{item.unit}</td>
@@ -143,8 +146,10 @@ export default function ManageProduct() {
                     <td className="text-center">{item.updated_by}</td>
                     <td>
                       <div className="align-action">
-                        <button>Edit</button>
-                        <button>Delete</button>
+                        <button><img src="/icon/ViewIcon.png" alt="view" width="35"/></button>
+                        <button><img src="/icon/EditIcon.png" alt="edit" width="35" /></button>
+                        <button><img src="/icon/DelIcon.png" alt="delete" width="35" /></button>
+                        <button><img src="/icon/PrintIcon.png" alt="view" width="35" /></button>
                       </div>
                     </td>
                   </tr>

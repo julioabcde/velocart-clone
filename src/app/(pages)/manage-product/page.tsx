@@ -11,6 +11,9 @@ import { useEffect, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import { fetchData } from "@/services/GeneralService";
 import Pagination from "@/components/pagination/Pagination";
+import Modal from "@/components/modal/Modal";
+import { useRouter } from "next/navigation";
+import { IoMdReturnLeft } from "react-icons/io";
 
 export default function ManageProduct() {
   const [data, setData] = useState<Product[]>([]);
@@ -19,6 +22,8 @@ export default function ManageProduct() {
   const [total, setTotal] = useState(0);
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const param: PaginationParam = {
     pagination: true,
@@ -60,6 +65,47 @@ export default function ManageProduct() {
     }
   };
 
+  const openModal = (id: string) => {
+    setDeleteId(id);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setDeleteId(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+
+    try {
+      const request: RequestStructure<{ productId: string }> = {
+        api: "/delete-product",
+        method: "PATCH",
+        body: { productId: deleteId },
+      };
+
+      const response = await fetchData(request);
+      if (response.responseCode !== "00") {
+        throw new Error(response.responseDesc || "Failed to delete product");
+      }
+
+      console.log("Product deleted successfully");
+      closeModal();
+
+      loadData();
+    } catch (error) {
+      console.error("Error deleting product", error);
+    }
+  };
+
+  const router = useRouter();
+  const handleEdit = (id: string) => {
+    sessionStorage.setItem("selectedProductId", id);
+
+    router.push("/manage-product/view-product");
+  };
+
   useEffect(() => {
     loadData();
   }, [page, pageSize]);
@@ -78,6 +124,25 @@ export default function ManageProduct() {
           </button>
         </div>
       </div>
+
+      {/* Modal */}
+      <Modal isOpen={isModalOpen} onClose={closeModal} title="Delete Product">
+        <p>Are you sure you want to delete this product?</p>
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={closeModal}
+            className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </Modal>
 
       {/* Body */}
       <div className="card-body">
@@ -146,10 +211,30 @@ export default function ManageProduct() {
                     <td className="text-center">{item.updated_by}</td>
                     <td>
                       <div className="align-action">
-                        <button><img src="/icon/ViewIcon.png" alt="view" width="35"/></button>
-                        <button><img src="/icon/EditIcon.png" alt="edit" width="35" /></button>
-                        <button><img src="/icon/DelIcon.png" alt="delete" width="35" /></button>
-                        <button><img src="/icon/PrintIcon.png" alt="view" width="35" /></button>
+                        {/* <button>
+                          <img src="/icon/ViewIcon.png" alt="view" width="35" />
+                        </button> */}
+                        <button
+                          onClick={() => handleEdit(item.product_id ?? "")}
+                        >
+                          <img src="/icon/EditIcon.png" alt="edit" width="35" />
+                        </button>
+                        <button
+                          onClick={() => openModal(item.product_id ?? "")}
+                        >
+                          <img
+                            src="/icon/DelIcon.png"
+                            alt="delete"
+                            width="35"
+                          />
+                        </button>
+                        <button>
+                          <img
+                            src="/icon/PrintIcon.png"
+                            alt="view"
+                            width="35"
+                          />
+                        </button>
                       </div>
                     </td>
                   </tr>

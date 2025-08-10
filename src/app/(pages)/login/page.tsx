@@ -44,9 +44,10 @@ export default function Login() {
   const login = async () => {
     try {
       setLoading(true);
-      
+
       const response = await fetchData<Credential>(request);
       if (response.responseCode != "00") {
+        //must be removed once error pop up is finished
         console.log("responseDate: ", response.responseDate);
         console.log("responseCode: ", response.responseCode);
         console.log("responseDesc: ", response.responseDesc);
@@ -55,9 +56,19 @@ export default function Login() {
         setLoading(false);
       }
       else {
+        const staffId = response.data.staffId;
+        const role = response.data.role;
         const jwtToken = response.data.token;
-        if (jwtToken) {
-          localStorage.setItem("jwt_token", jwtToken);
+        const expiresIn = response.data.expiresIn;
+
+        if (staffId && role && jwtToken && expiresIn) {
+          const expiryTimestamps = Date.now() + expiresIn * 1000;
+
+          localStorage.setItem("staffId", staffId);
+          localStorage.setItem("role", role);
+          localStorage.setItem("jwtToken", jwtToken);
+          localStorage.setItem("expiresIn", expiryTimestamps.toString());
+
           setTimeout(() => {
             setLoading(false);
             router.push("/manage-product");

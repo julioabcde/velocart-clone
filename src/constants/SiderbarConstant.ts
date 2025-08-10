@@ -11,22 +11,21 @@ export const SIDEBAR_CONSTANT = [
     icon: Database,
     subItem: [
       {
-        label: "Manage Cashier",
-        href: "/manage-cashier",
+        label: "Category",
+        href: "/master/category",
       },
       {
-        label: "Manage Daily Capital",
+        label: "Daily Capital",
         href: "/manage-daily-capital",
       },
       {
-        label: "Manage Product",
+        label: "Product",
         href: "/manage-product",
       },
+      {
+        label: "Staff",
+        href: "/master/staff",
+      },
     ],
-  },
-  {
-    label: "Test",
-    href: "/test",
-    icon: FlaskConical,
-  },
+  }
 ];

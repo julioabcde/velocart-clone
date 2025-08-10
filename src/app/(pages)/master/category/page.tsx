@@ -1,17 +1,15 @@
 "use client";
 
 import DateRangePickerV1 from "@/components/datepicker/DateRangePicker";
-import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
-import { Product } from "@/models/Product";
-import { useEffect, useState } from "react";
-import { FaSyncAlt } from "react-icons/fa";
-import { fetchData } from "@/services/GeneralService";
 import Pagination from "@/components/pagination/Pagination";
 import { PAGE_SIZES } from "@/constants/GlobalConstant";
-import { formatRupiah } from "@/services/UIService";
+import { Category } from "@/models/Category";
+import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
+import { fetchData } from "@/services/GeneralService";
+import { useEffect, useState } from "react";
 
-export default function ManageProduct() {
-  const [data, setData] = useState<Product[]>([]);
+export default function MasterCategory() {
+  const [data, setData] = useState<Category[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
@@ -27,7 +25,7 @@ export default function ManageProduct() {
   };
 
   const request: RequestStructure<PaginationParam> = {
-    api: "/get-all-products",
+    api: "/get-all-categories",
     method: "POST",
     body: param,
   };
@@ -37,7 +35,7 @@ export default function ManageProduct() {
     setError(false);
 
     try {
-      const response = await fetchData<PaginatedData<Product>>(request);
+      const response = await fetchData<PaginatedData<Category>>(request);
       if (response.responseCode != "00") {
         console.log("responseDate: ", response.responseDate);
         console.log("responseCode: ", response.responseCode);
@@ -70,29 +68,13 @@ export default function ManageProduct() {
 
   return (
     <div className="card card-custom gutter-b">
-      {/* Header */}
       <div className="card-header">
         <div className="card-title">
-          <h3 className="card-label">Product</h3>
-        </div>
-        <div className="card-toolbar">
-          <button className="btn btn-primary mr-3">Excel CSV</button>
-          <button className="btn btn-primary btn-refresh mr-10">
-            <FaSyncAlt />
-          </button>
+          <h3 className="card-label">Category</h3>
         </div>
       </div>
 
-      {/* Body */}
       <div className="card-body">
-        {/* Begin: Filtration Form */}
-        {/*
-            w-1/2	width: 50%	Half the parent width
-            w-1/3	width: 33%	One-third of parent
-            w-2/3	width: 66%	Two-thirds
-            w-1/4	width: 25%	One-fourth
-            w-full	width: 100%	Fills parent
-        */}
         <div className="flex justify-between gap-4 mb-6">
           <div className="w-1/3">
             <DateRangePickerV1></DateRangePickerV1>
@@ -124,12 +106,8 @@ export default function ManageProduct() {
           <table className="table table-head-custom table-vertical-center text-center w-full">
             <thead>
               <tr>
-                <th className="text-center">PRODUCT ID</th>
+                <th className="text-center">ID</th>
                 <th className="text-center">CATEGORY</th>
-                <th className="text-center">PRODUCT NAME</th>
-                <th className="text-center">BASE PRICE</th>
-                <th className="text-center">SELLING PRICE</th>
-                <th className="text-center">UNIT</th>
                 <th className="text-center">ACTION</th>
               </tr>
             </thead>
@@ -137,26 +115,13 @@ export default function ManageProduct() {
             <tbody>
               {Array.isArray(data) && data.length > 0 ? (
                 data.map((item) => (
-                  <tr key={item.productId}>
-                    <td className="text-center">{item.productId}</td>
+                  <tr key={item.id}>
+                    <td className="text-center">{item.id}</td>
                     <td className="text-center truncate max-w-[70px]">
-                      {item.category}
+                      {item.categoryName}
                     </td>
-                    <td className="text-center truncate max-w-[200px]">
-                      {item.productName}
-                    </td>
-                    <td className="text-center">
-                      {formatRupiah(item.basePrice)}
-                    </td>
-                    <td className="text-center">
-                      {formatRupiah(item.sellingPrice)}
-                    </td>
-                    <td className="text-center">{item.unit}</td>
                     <td>
                       <div className="align-action">
-                        <button>
-                          <img src="/icon/ViewIcon.png" alt="view" width="35" />
-                        </button>
                         <button>
                           <img src="/icon/EditIcon.png" alt="edit" width="35" />
                         </button>

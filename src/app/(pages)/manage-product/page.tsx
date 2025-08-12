@@ -10,15 +10,18 @@ import Pagination from "@/components/pagination/Pagination";
 import { PAGE_SIZES } from "@/constants/GlobalConstant";
 import { formatRupiah } from "@/services/UIService";
 import Modal from "@/components/modal/Modal";
-import { useRouter } from "next/navigation";
 import { IoMdReturnLeft } from "react-icons/io";
+import { useRouter } from "next/navigation";
+import { ProductService } from "@/services/_api.services/product.api.services";
 
 export default function ManageProduct() {
+  const router = useRouter();
   const [data, setData] = useState<Product[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const [isLoading, setLoading] = useState(false);
+  // const [isError, setError] = useState<string | null>(null);
   const [isError, setError] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,6 +34,24 @@ export default function ManageProduct() {
     filter: "",
   };
 
+  // useEffect(() => {
+  //   let alive = true;
+  //   (async () => {
+  //     setLoading(true); setError(null);
+  //     try {
+  //       const res = await ProductService.getAllProducts(param);
+  //       if (res.responseCode !== "00") throw new Error(res.responseDesc ?? res.message);
+  //       if (!alive) return;
+  //       setData(res.data.data);
+  //       setTotal(res.data.total);
+  //     } catch (e: any) {
+  //       if (!alive) return;
+  //       setError(e?.message ?? "Fetch error");
+  //     } finally {
+  //       if (alive) setLoading(false);
+  //     }
+  //   })();
+  //   return () => { alive = false; };
   const request: RequestStructure<PaginationParam> = {
     api: "/get-all-products",
     method: "POST",
@@ -103,16 +124,15 @@ export default function ManageProduct() {
     }
   };
 
-  const router = useRouter();
+  useEffect(() => {
+    loadData();
+  }, [page, pageSize]);
+
   const handleEdit = (id: string) => {
     sessionStorage.setItem("selectedProductId", id);
 
     router.push("/manage-product/view-product");
   };
-
-  useEffect(() => {
-    loadData();
-  }, [page, pageSize]);
 
   return (
     <div className="card card-custom gutter-b">
@@ -122,6 +142,12 @@ export default function ManageProduct() {
           <h3 className="card-label">Product</h3>
         </div>
         <div className="card-toolbar">
+          <button
+            className="btn-create mr-3"
+            onClick={() => router.push("/manage-product/create-manage-product")}
+          >
+            Add Product
+          </button>
           <button className="btn btn-primary mr-3">Excel CSV</button>
           <button className="btn btn-primary btn-refresh mr-10">
             <FaSyncAlt />
@@ -224,6 +250,8 @@ export default function ManageProduct() {
                         </button> */}
                         <button
                           onClick={() => handleEdit(item.productId ?? "")}
+                          // onClick={() =>
+                          //   router.push(`/get-product-by-product-id/${item.productId}`)}
                         >
                           <img src="/icon/EditIcon.png" alt="edit" width="35" />
                         </button>

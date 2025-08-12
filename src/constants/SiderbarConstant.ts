@@ -27,5 +27,16 @@ export const SIDEBAR_CONSTANT = [
         href: "/master/staff",
       },
     ],
+  },
+  {
+    label: "Point of Sales",
+    href: "/point-of-sales",
+    icon: Database,
+    subItem: [
+      {
+        label: "Manage Cashier",
+        href: "/manage-cashier",
+      },
+    ],
   }
 ];

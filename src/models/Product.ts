@@ -1,17 +1,17 @@
 export interface Product {
   id?: number;
-  productId?: string;
+  productId: string;
   categoryId?: number;
   category?: string;
   productName?: string;
   unit?: string;
-  basePrice?: string;
-  sellingPrice?: string;
+  basePrice?: number;
+  sellingPrice?: number;
   status?: string;
 }
 
 export interface ProductDTO {
-  productId?: string;
+  productId: string;
   categoryId?: number;
   productName?: string;
   unit?: string;

@@ -5,6 +5,9 @@ import '../styles/card.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import Footer from '../components/footer/footer'
 import Header from '../components/header/HeaderIndex'
+import { AuthProvider, useAuth } from '@/context/AuthContext';
+import Spinner from '@/components/spinner/Spinner';
+import GlobalWrapper from '@/components/global-wrapper/GlobalWrapper';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,14 +28,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans flex flex-col h-screen`}>
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <div className="flex flex-col flex-1 overflow-x-hidden">
-            <Header /> 
-            <main className="flex-1 overflow-y-auto relative">{children}</main>
-            <Footer />
+        <AuthProvider>
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <div className="flex flex-col flex-1 overflow-x-hidden">
+              <Header />
+              <main className="flex-1 overflow-y-auto relative">
+                <GlobalWrapper>
+                  {children}
+                </GlobalWrapper>
+              </main>
+              <Footer />
+            </div>
           </div>
-        </div>
+        </AuthProvider>
       </body>
     </html>
   );

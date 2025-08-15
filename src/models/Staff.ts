@@ -1,9 +1,16 @@
+export interface Staff {
+  id?: number;
+  staffId?: string;
+  staffName?: string;
+  roleName?: string;
+  status?: string;
+}
+
 export interface Credential {
-  staff_id?: string;
-  role?: number;
+  staffId?: string;
+  role?: string;
   token?: string;
-  token_type?: string;
-  expires_in?: string;
+  ttl?: number;
 }
 
 export interface LoginDTO {

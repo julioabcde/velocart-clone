@@ -2,8 +2,7 @@ export interface Credential {
   staff_id?: string;
   role?: number;
   token?: string;
-  token_type?: string;
-  expires_in?: string;
+  ttl?: number;
 }
 
 export interface LoginDTO {

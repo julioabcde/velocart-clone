@@ -1,7 +1,7 @@
 import React from 'react'
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react'
 import { PaginationProps } from '@/models/UIModels'
-import { paginateUtils } from '@/services/UIService'
+import { PaginationService } from '@/services/ui/PaginationService';
 
 export default function Pagination({
   page,
@@ -15,7 +15,7 @@ export default function Pagination({
 }: PaginationProps) {
   const totalPages = Math.ceil(total / pageSize);
 
-  const pages = paginateUtils(totalPages, page, siblingCount, boundaryCount);
+  const pages = PaginationService.paginateUtils(totalPages, page, siblingCount, boundaryCount);
 
   const change = (newPage: number, newSize = pageSize) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -24,7 +24,6 @@ export default function Pagination({
 
   return (
     <div className="flex flex-wrap items-center justify-between py-4">
-      {/* page size selector */}
       <div className="flex items-center space-x-2">
         <label className="text-sm font-medium">Show</label>
         <select
@@ -40,7 +39,6 @@ export default function Pagination({
         </select>
       </div>
 
-      {/* page buttons */}
       <nav aria-label="Pagination">
         <ul className="inline-flex items-center space-x-1">
           {showFirstLast && (

@@ -21,3 +21,26 @@ export interface ProductDTO {
   basePrice?: number;
   sellingPrice?: number;
 }
+
+export interface CreateEditProductDTO {
+  productId: string;
+  categoryId: number;
+  productName: string;
+  unit: string;
+  basePrice: number;
+  sellingPrice: number;
+}
+
+export interface EditProductDTO {
+  id: number;
+  productId: string;
+  categoryId: number;
+  productName: string;
+  unit: string;
+  basePrice: number;
+  sellingPrice: number;
+}
+
+export interface ProductByIdDTO {
+  productId: string;
+}

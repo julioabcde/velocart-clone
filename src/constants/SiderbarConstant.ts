@@ -1,10 +1,10 @@
-import { LayoutDashboard, Database, FlaskConical } from "lucide-react";
+import { Database, Computer, ChartLine } from "lucide-react";
 
 export const SIDEBAR_CONSTANT = [
   {
-    label: "Login",
-    href: "/login",
-    icon: LayoutDashboard,
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: ChartLine,
   },
   {
     label: "Master",
@@ -19,14 +19,20 @@ export const SIDEBAR_CONSTANT = [
         href: "/manage-daily-capital",
       },
       {
-        label: "Manage Product",
-        href: "/manage-product",
+        label: "Product",
+        href: "/master/product",
       },
     ],
   },
   {
-    label: "Test",
-    href: "/test",
-    icon: FlaskConical,
-  },
+    label: "Point of Sales",
+    href: "/point-of-sales",
+    icon: Computer,
+    subItem: [
+      {
+        label: "Manage Cashier",
+        href: "/manage-cashier",
+      },
+    ],
+  }
 ];

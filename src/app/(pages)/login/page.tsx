@@ -55,6 +55,7 @@ export default function Login() {
 
       const response = await LoginService.login(loginParam);
       if (response.responseCode != "00") {
+        //must be removed once error pop up is finished
         console.log("responseDate: ", response.responseDate);
         console.log("responseCode: ", response.responseCode);
         console.log("responseDesc: ", response.responseDesc);

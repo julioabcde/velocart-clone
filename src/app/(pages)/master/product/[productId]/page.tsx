@@ -182,7 +182,7 @@ export default function ViewEditProduct() {
   const validateEditProduct = () => {
     const errors: Partial<Record<keyof CreateEditProductDTO, string>> = {};
 
-    if (categoryId === 0) {
+    if (Number(categoryId) === 0) {
       errors.categoryId = "Category is requried!";
     }
 

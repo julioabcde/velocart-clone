@@ -103,7 +103,7 @@ export default function CreateProduct() {
       errors.productId = "Product ID is required!";
     }
 
-    if (categoryId === 0) {
+    if (Number(categoryId) === 0) {
       console.log("cat id error");
       errors.categoryId = "Category is requried!";
     }

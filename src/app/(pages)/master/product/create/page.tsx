@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { PaginationParam } from '@/models/GeneralDTO';
 import { SUCCESS_CODE } from '@/constants/GlobalConstant';
 import AsyncSelect from 'react-select/async';
@@ -9,12 +9,15 @@ import { CategoryService } from '@/services/api/CategoryService';
 import { ProductService } from '@/services/api/ProductService';
 import { useRouter } from 'next/navigation';
 import { CreateEditProductDTO } from '@/models/Product';
+import ProtectedRoute from '@/components/protected-route/ProtectedRoute';
+import Modal from '@/components/modal/Modal';
+import Spinner from '@/components/spinner/Spinner';
 
 export default function CreateProduct() {
   const router = useRouter();
 
   const [productId, setProductId] = useState("");
-  const [categoryId, setCategoryId] = useState(1);
+  const [categoryId, setCategoryId] = useState(0);
   const [productName, setProductName] = useState("");
   const [unit, setUnit] = useState("");
   const [basePrice, setBasePrice] = useState(0);
@@ -22,7 +25,9 @@ export default function CreateProduct() {
 
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [categoryList, setCategoryList] = useState<{ value: number; label: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<{ value: number; label: string } | null>(null);
 
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof CreateEditProductDTO, string>>>({});
@@ -37,7 +42,7 @@ export default function CreateProduct() {
     sellingPrice: sellingPrice,
   };
 
-  const getAllCategories = async (searchText: string) => {
+  const getAllCategories = async (searchText?: string) => {
     try {
       const getAllCategoriesParam: PaginationParam = {
         pagination: false,
@@ -57,22 +62,30 @@ export default function CreateProduct() {
         return [];
       }
       else {
-        const categoryList = response.data?.map((c) => ({
+        const list = response.data?.map((c) => ({
           value: c.id,
           label: c.categoryName || ''
         })) || [];
 
-        setSelectedCategory(categoryList[0] || null);
-
-        return categoryList;
+        return list;
       }
     }
     catch (err) {
-      console.error("Fetch error:", err);
+      setError(true);
 
       return [];
     }
   };
+
+  const onInitialLoad = async () => {
+    const list = await getAllCategories();
+    setCategoryList(list);
+    setSelectedCategory(list.find(c => c.value === categoryId) || null);
+  }
+
+  useEffect(() => {
+    onInitialLoad();
+  }, []);
 
   const debouncedGetAllCategories = useCallback(
     debounce((query: string, callback: (options: any[]) => void) => {
@@ -91,6 +104,7 @@ export default function CreateProduct() {
     }
 
     if (categoryId === 0) {
+      console.log("cat id error");
       errors.categoryId = "Category is requried!";
     }
 
@@ -131,8 +145,11 @@ export default function CreateProduct() {
       }
       else {
         setMessage(response.message);
-
-        router.push('/master/product');
+        setLoading(true);
+        setTimeout(() => {
+          setLoading(false);
+          setIsModalOpen(true);
+        }, 1500);
       }
     }
     catch (err) {
@@ -140,7 +157,7 @@ export default function CreateProduct() {
       setError(true);
       setLoading(false);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,164 +169,227 @@ export default function CreateProduct() {
     }
   };
 
+  const handleCancel = () => {
+    router.push("/master/product");
+  };
+
+  const closeModal = () => {
+    router.push('/master/product');
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-6xl bg-white rounded-2xl shadow p-6">
-        <h1 className="text-xl font-bold mb-4">Create Product Form</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-slate-50 p-6">
+        <div className="mx-auto max-w-6xl bg-white rounded-2xl shadow p-6">
+          <h1 className="text-xl text-center font-bold mb-4">Create Product</h1>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="productId" className="block text-sm font-medium mb-1">Product ID <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  id="productId"
+                  name="productId"
+                  value={productId}
+                  onChange={(e) => {
+                    setProductId(e.target.value);
+                    if (fieldErrors.productId) {
+                      setFieldErrors((prev) => ({ ...prev, productId: undefined }));
+                    }
+                  }}
+                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.productId ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+                  placeholder="e.g., BRG-0001"
+                />
+                {fieldErrors.productId && (
+                  <p className="col-start-3 col-span-4 text-sm text-red-600">
+                    {fieldErrors.productId}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium mb-1">Category <span className="text-red-500">*</span></label>
+                <AsyncSelect
+                  inputId="category"
+                  cacheOptions
+                  defaultOptions={categoryList}
+                  value={selectedCategory}
+                  loadOptions={debouncedGetAllCategories}
+                  onChange={(e: any) => {
+                    setSelectedCategory(e)
+                    setCategoryId(Number(e?.value) || 0);
+                    if (fieldErrors.categoryId) {
+                      setFieldErrors((prev) => ({ ...prev, categoryId: undefined }));
+                    }
+                  }}
+                  isSearchable
+                  placeholder="Select a category..."
+                  styles={{
+                    control: (base, state) => ({
+                      ...base,
+                      borderWidth: '1px',
+                      borderColor: fieldErrors.categoryId ? '#dc2626' : '#d1d5db',
+                      boxShadow: state.isFocused
+                        ? fieldErrors.categoryId
+                          ? '0 0 0 2px #dc2626'
+                          : '0 0 0 2px #3b82f6'
+                        : 'none',
+                      '&:hover': {
+                        borderColor: fieldErrors.categoryId ? '#dc2626' : '#d1d5db',
+                      },
+                      borderRadius: '0.375rem',
+                    }),
+                    input: (base) => ({
+                      ...base,
+                      fontSize: '0.875rem',
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      fontSize: '0.875rem',
+                    }),
+                    placeholder: (base) => ({
+                      ...base,
+                      fontSize: '0.875rem',
+                      color: '#9ca3af',
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      fontSize: '0.875rem',
+                    }),
+                  }}
+                />
+                {fieldErrors.categoryId && (
+                  <p className="col-start-3 col-span-4 text-sm text-red-600">
+                    {fieldErrors.categoryId}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div>
-              <label htmlFor="productId" className="block text-sm font-medium mb-1">Product ID <span className="text-red-500">*</span></label>
+              <label htmlFor="productName" className="block text-sm font-medium mb-1">Product Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
-                id="productId"
-                name="productId"
-                value={productId}
+                id="productName"
+                name="productName"
+                value={productName}
                 onChange={(e) => {
-                  setProductId(e.target.value);
-                  if (fieldErrors.productId) {
-                    setFieldErrors((prev) => ({ ...prev, productId: undefined }));
+                  setProductName(e.target.value);
+                  if (fieldErrors.productName) {
+                    setFieldErrors((prev) => ({ ...prev, productName: undefined }));
                   }
                 }}
-                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.productId ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-                placeholder="e.g., BRG-0001"
+                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.productName ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+                placeholder="e.g., Amoxilin BPJS"
               />
-              {fieldErrors.productId && (
+              {fieldErrors.productName && (
                 <p className="col-start-3 col-span-4 text-sm text-red-600">
-                  {fieldErrors.productId}
-                </p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium mb-1">Category</label>
-              <AsyncSelect
-                inputId="category"
-                cacheOptions={false}
-                defaultOptions
-                value={selectedCategory}
-                loadOptions={debouncedGetAllCategories}
-                onChange={(e: any) => {
-                  setSelectedCategory(e)
-                  setCategoryId(Number(e?.value) || 0);
-                  if (fieldErrors.categoryId) {
-                    setFieldErrors((prev) => ({ ...prev, categoryId: undefined }));
-                  }
-                }}
-                isSearchable
-                placeholder="Select a category..."
-                className={`w-full rounded-md text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.categoryId ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="productName" className="block text-sm font-medium mb-1">Product Name <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              id="productName"
-              name="productName"
-              value={productName}
-              onChange={(e) => {
-                setProductName(e.target.value);
-                if (fieldErrors.productName) {
-                  setFieldErrors((prev) => ({ ...prev, productName: undefined }));
-                }
-              }}
-              className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.productName ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-              placeholder="e.g., Amoxilin BPJS"
-            />
-            {fieldErrors.productName && (
-              <p className="col-start-3 col-span-4 text-sm text-red-600">
-                {fieldErrors.productName}
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="unit" className="block text-sm font-medium mb-1">Unit <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                id="unit"
-                name="unit"
-                value={unit}
-                onChange={(e) => {
-                  setUnit(e.target.value);
-                  if (fieldErrors.unit) {
-                    setFieldErrors((prev) => ({ ...prev, unit: undefined }));
-                  }
-                }}
-                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.unit ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-                placeholder="e.g., strip, box"
-              />
-              {fieldErrors.unit && (
-                <p className="col-start-3 col-span-4 text-sm text-red-600">
-                  {fieldErrors.unit}
+                  {fieldErrors.productName}
                 </p>
               )}
             </div>
 
-            <div>
-              <label htmlFor="basePrice" className="block text-sm font-medium mb-1">Base Price <span className="text-red-500">*</span></label>
-              <input
-                type="number"
-                id="basePrice"
-                name="basePrice"
-                inputMode="decimal"
-                value={basePrice === 0 ? '' : basePrice}
-                onChange={(e) => {
-                  setBasePrice(Number(e.target.value));
-                  if (fieldErrors.basePrice) {
-                    setFieldErrors((prev) => ({ ...prev, basePrice: undefined }));
-                  }
-                }}
-                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.basePrice ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-              />
-              {fieldErrors.basePrice && (
-                <p className="col-start-3 col-span-4 text-sm text-red-600">
-                  {fieldErrors.basePrice}
-                </p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="sellingPrice" className="block text-sm font-medium mb-1">Selling Price <span className="text-red-500">*</span></label>
-              <input
-                type="number"
-                id="sellingPrice"
-                name="sellingPrice"
-                inputMode="decimal"
-                value={sellingPrice === 0 ? '' : sellingPrice}
-                onChange={(e) => {
-                  setSellingPrice(Number(e.target.value));
-                  if (fieldErrors.sellingPrice) {
-                    setFieldErrors((prev) => ({ ...prev, sellingPrice: undefined }));
-                  }
-                }}
-                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.sellingPrice ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-              />
-              {fieldErrors.sellingPrice && (
-                <p className="col-start-3 col-span-4 text-sm text-red-600">
-                  {fieldErrors.sellingPrice}
-                </p>
-              )}
-            </div>
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="unit" className="block text-sm font-medium mb-1">Unit <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  id="unit"
+                  name="unit"
+                  value={unit}
+                  onChange={(e) => {
+                    setUnit(e.target.value);
+                    if (fieldErrors.unit) {
+                      setFieldErrors((prev) => ({ ...prev, unit: undefined }));
+                    }
+                  }}
+                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.unit ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+                  placeholder="e.g., strip, box"
+                />
+                {fieldErrors.unit && (
+                  <p className="col-start-3 col-span-4 text-sm text-red-600">
+                    {fieldErrors.unit}
+                  </p>
+                )}
+              </div>
 
-          <div className="flex items-center justify-between pt-2">
-            <p className="text-xs text-red-500">* Required</p>
+              <div>
+                <label htmlFor="basePrice" className="block text-sm font-medium mb-1">Base Price <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  id="basePrice"
+                  name="basePrice"
+                  inputMode="decimal"
+                  value={basePrice === 0 ? '' : basePrice}
+                  onChange={(e) => {
+                    setBasePrice(Number(e.target.value));
+                    if (fieldErrors.basePrice) {
+                      setFieldErrors((prev) => ({ ...prev, basePrice: undefined }));
+                    }
+                  }}
+                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.basePrice ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+                />
+                {fieldErrors.basePrice && (
+                  <p className="col-start-3 col-span-4 text-sm text-red-600">
+                    {fieldErrors.basePrice}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="sellingPrice" className="block text-sm font-medium mb-1">Selling Price <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  id="sellingPrice"
+                  name="sellingPrice"
+                  inputMode="decimal"
+                  value={sellingPrice === 0 ? '' : sellingPrice}
+                  onChange={(e) => {
+                    setSellingPrice(Number(e.target.value));
+                    if (fieldErrors.sellingPrice) {
+                      setFieldErrors((prev) => ({ ...prev, sellingPrice: undefined }));
+                    }
+                  }}
+                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.sellingPrice ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+                />
+                {fieldErrors.sellingPrice && (
+                  <p className="col-start-3 col-span-4 text-sm text-red-600">
+                    {fieldErrors.sellingPrice}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-between pt-2">
+              <p className="text-xs text-red-500">* Required</p>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="text-[15px] px-3.5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isLoading ? 'Saving...' : 'Save'}
+                </button>
+                <button type="button" onClick={handleCancel} className="text-[15px] px-3.5 py-2.5 rounded-xl bg-gray-400 text-white font-semibold hover:bg-gray-500 disabled:opacity-50">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <Modal isOpen={isModalOpen} onClose={closeModal} title="Create Product">
+          <p>{message}</p>
+          <div className="mt-4 flex justify-end space-x-2">
             <button
-              type="submit"
-              disabled={isLoading}
-              className="text-[15px] px-3.5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+              onClick={closeModal}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              {isLoading ? 'Saving...' : 'Create Product'}
+              OK
             </button>
           </div>
-        </form>
+        </Modal>
 
-        {/* @julioabcde kayaknya ini bisa dibikin modal */}
-        {message && <div className="mt-4 text-sm">{message}</div>}
+        {isLoading && <Spinner message="Saving new product..." />}
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

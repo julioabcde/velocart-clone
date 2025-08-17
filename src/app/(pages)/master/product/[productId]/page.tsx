@@ -154,11 +154,9 @@ export default function ViewEditProduct() {
     setSellingPrice(product.sellingPrice!);
 
     const category = await getCategoryById(product.categoryId!);
-    if (!category) {
-      return;
+    if (category) {
+      setSelectedCategory({ value: category.id, label: category.categoryName! });
     }
-
-    setSelectedCategory({ value: category.id, label: category.categoryName! });
 
     const list = await getAllCategories();
     if (!list) {

@@ -1,4 +1,4 @@
-import { Category } from "@/models/Category";
+import { Category, CategoryByIdDTO, CreateCategoryDTO, EditCategoryDTO } from "@/models/Category";
 import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
 import { GeneralService } from "../GeneralService";
 
@@ -19,5 +19,41 @@ export class CategoryService {
       body: param,
     };
     return GeneralService.fetchData<Category[]>(request);
+  }
+
+  static getCategoryById(param: CategoryByIdDTO) {
+    const request: RequestStructure<CategoryByIdDTO> = {
+      api: "/get-category-by-id",
+      method: "POST",
+      body: param,
+    };
+    return GeneralService.fetchData<Category>(request);
+  }
+
+  static createCategory(param: CreateCategoryDTO) {
+    const request: RequestStructure<CreateCategoryDTO> = {
+      api: "/save-new-category",
+      method: "POST",
+      body: param,
+    }
+    return GeneralService.fetchData<Category>(request);
+  }
+
+  static updateCategory(param: EditCategoryDTO) {
+    const request: RequestStructure<EditCategoryDTO> = {
+      api: "/update-category",
+      method: "PUT",
+      body: param,
+    }
+    return GeneralService.fetchData<Category>(request);
+  }
+
+  static deleteCategory(param: CategoryByIdDTO) {
+    const request: RequestStructure<CategoryByIdDTO> = {
+      api: "/delete-category",
+      method: "PATCH",
+      body: param,
+    }
+    return GeneralService.fetchData(request);
   }
 }

@@ -5,8 +5,7 @@ import '../styles/card.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import Footer from '../components/footer/footer'
 import Header from '../components/header/HeaderIndex'
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import Spinner from '@/components/spinner/Spinner';
+import { AuthProvider } from '@/context/AuthContext';
 import GlobalWrapper from '@/components/global-wrapper/GlobalWrapper';
 
 const geistSans = Geist({

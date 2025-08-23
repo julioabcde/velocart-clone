@@ -2,7 +2,7 @@ export interface Product {
   id?: number;
   productId: string;
   categoryId?: number;
-  category?: string;
+  categoryName?: string;
   productName?: string;
   unit?: string;
   basePrice?: number;

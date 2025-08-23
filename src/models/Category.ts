@@ -4,7 +4,11 @@ export interface Category {
     status?: string;
 }
 
-export interface CategoryDTO {
+export interface CreateCategoryDTO {
+    categoryName?: string;
+}
+
+export interface EditCategoryDTO {
     id: number;
     categoryName?: string;
 }

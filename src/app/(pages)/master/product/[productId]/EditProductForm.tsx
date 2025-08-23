@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CreateEditProductDTO, Product } from "@/models/Product";
 import { ProductService } from "@/services/api/ProductService";
@@ -9,23 +9,27 @@ import { PaginationParam } from "@/models/GeneralDTO";
 import { CategoryService } from "@/services/api/CategoryService";
 import { SUCCESS_CODE } from "@/constants/GlobalConstant";
 import debounce from "lodash.debounce";
+import Modal from "@/components/modal/Modal";
+import Spinner from "@/components/spinner/Spinner";
 
-export default function EditProductForm({ data }: { data?: Product }) {
+export default function EditProductForm({ data }: { data: Product }) {
   const router = useRouter();
 
-  const [productId, setProductId] = useState(data?.productId || "");
-  const [categoryId, setCategoryId] = useState(data?.categoryId || 0);
-  const [productName, setProductName] = useState(data?.productName || "");
-  const [unit, setUnit] = useState(data?.unit || "");
-  const [basePrice, setBasePrice] = useState(data?.basePrice || 0);
-  const [sellingPrice, setSellingPrice] = useState(data?.sellingPrice || 0);
+  const [productId, setProductId] = useState("");
+  const [categoryId, setCategoryId] = useState(0);
+  const [productName, setProductName] = useState("");
+  const [unit, setUnit] = useState("");
+  const [basePrice, setBasePrice] = useState(0);
+  const [sellingPrice, setSellingPrice] = useState(0);
 
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [categoryList, setCategoryList] = useState<{ value: number; label: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<{ value: number; label: string } | null>(null);
 
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof Product, string>>>({});
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof CreateEditProductDTO, string>>>({});
   const [message, setMessage] = useState('');
 
   const editProductParam: CreateEditProductDTO = {
@@ -37,7 +41,7 @@ export default function EditProductForm({ data }: { data?: Product }) {
     sellingPrice: sellingPrice!,
   };
 
-  const getAllCategories = async (searchText: string) => {
+  const getAllCategories = async (searchText?: string) => {
     try {
       const getAllCategoriesParam: PaginationParam = {
         pagination: false,
@@ -57,14 +61,15 @@ export default function EditProductForm({ data }: { data?: Product }) {
         return [];
       }
       else {
-        const categoryList = response.data?.map((c) => ({
+        const list = response.data?.map((c) => ({
           value: c.id,
           label: c.categoryName || ''
         })) || [];
 
-        setSelectedCategory(categoryList.find(c => c.value === categoryId) || null)
+        setCategoryList(list);
+        setSelectedCategory(list.find(c => c.value === Number(categoryId)) || null);
 
-        return categoryList;
+        return list;
       }
     }
     catch (err) {
@@ -73,6 +78,19 @@ export default function EditProductForm({ data }: { data?: Product }) {
       return [];
     }
   };
+
+  useEffect(() => {
+    if (data) {
+      setProductId(data.productId);
+      setCategoryId(data.categoryId!);
+      setProductName(data.productName!);
+      setUnit(data.unit!);
+      setBasePrice(data.basePrice!);
+      setSellingPrice(data.sellingPrice!);
+
+      getAllCategories();
+    }
+  }, [data]);
 
   const debouncedGetAllCategories = useCallback(
     debounce((query: string, callback: (options: any[]) => void) => {
@@ -152,6 +170,11 @@ export default function EditProductForm({ data }: { data?: Product }) {
     router.push("/master/product");
   }
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    router.push('/master/product');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="mx-auto max-w-6xl bg-white rounded-2xl shadow p-6">
@@ -175,7 +198,7 @@ export default function EditProductForm({ data }: { data?: Product }) {
               <AsyncSelect
                 inputId="category"
                 cacheOptions={false}
-                defaultOptions
+                defaultOptions={categoryList}
                 value={selectedCategory}
                 loadOptions={debouncedGetAllCategories}
                 onChange={(e: any) => {
@@ -302,6 +325,32 @@ export default function EditProductForm({ data }: { data?: Product }) {
         {/* @julioabcde kayaknya ini bisa dibikin modal */}
         {message && <div className="mt-4 text-sm">{message}</div>}
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal} title="Create Product">
+        <p>{message}</p>
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={closeModal}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            OK
+          </button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal} title="Create Product">
+        <p>{message}</p>
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={closeModal}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            OK
+          </button>
+        </div>
+      </Modal>
+
+      {isLoading && <Spinner message="Saving product..." />}
     </div>
   );
 }

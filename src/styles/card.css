@@ -5,270 +5,179 @@
 @layer components {
   /* Base Card */
   .card-custom {
-    @apply bg-white border-0 shadow-[0px_0px_30px_0px_rgba(82,63,105,0.05)] rounded-[0.42rem] p-0;
+    @apply rounded-[0.42rem] border-0 bg-white p-0 shadow-[0px_0px_30px_0px_rgba(82,63,105,0.05)];
   }
 
   /* Header */
   .card-custom > .card-header {
-    @apply flex justify-between items-stretch flex-wrap bg-transparent py-0;
-    /* Sass: min-height: 70px; */
+    @apply flex flex-wrap items-stretch justify-between bg-transparent py-0;
     min-height: 70px;
   }
 
   /* Title */
   .card-custom > .card-header .card-title {
-    @apply flex items-center my-2 ml-0;
+    @apply my-2 ml-0 flex items-center text-2xl font-bold tracking-tight text-[#181C32];
   }
-  .card-custom > .card-header .card-title .card-icon {
-    @apply mr-3 leading-none;
-  }
-  .card-custom > .card-header .card-title .card-icon i,
-  .card-custom > .card-header .card-title .card-icon .svg-icon {
-    @apply text-[1.25rem] text-[#7E8299] leading-none;
-  }
-  .card-custom > .card-header .card-title,
-  .card-custom > .card-header .card-label {
-    @apply font-medium text-[1.275rem] text-[#181C32];
-  }
+
   .card-custom > .card-header .card-title .card-label {
-    @apply ml-8 flex-wrap;
+    @apply ml-9 flex-wrap;
   }
+
   .card-custom > .card-header .card-title small {
     @apply text-[1rem] text-[#B5B5C3];
   }
 
   /* Toolbar */
-  .card-custom > .card-header .card-toolbar {
-    @apply flex items-center my-2 flex-wrap;
-  }
-  .card-custom > .card-header .card-toolbar .card {
-    @apply flex items-center my-2 flex-wrap;
-  }
-
-  /* Tabs style */
-  .card-custom > .card-header.card-header-tabs-line {
-    @apply py-0 items-stretch !important;
-  }
-  .card-custom > .card-header.card-header-tabs-line .card-toolbar {
-    @apply m-0;
-  }
-  .card-custom > .card-header.card-header-tabs-line .nav {
-    @apply border-b-transparent;
-  }
-  .card-custom > .card-header.card-header-tabs-line .nav .nav-item {
-    @apply items-stretch;
-  }
-  .card-custom > .card-header.card-header-tabs-line .nav .nav-link {
-    /* Sass: padding-top/bottom: $card-spacer-y (2rem) */
-    @apply py-[2rem];
-  }
-
-  /* Header-right */
-  .card-custom > .card-header.card-header-right {
-    @apply justify-end;
+  .card-custom > .card-toolbar {
+    @apply ml-9 mr-9 flex items-center justify-end gap-2;
   }
 
   /* Body */
   .card-custom > .card-body {
-    /* Sass: padding: 2rem 2.25rem */
-    @apply p-[2rem] px-[2.25rem];
-  }
-
-  /* Footer */
-  .card-custom > .card-footer {
-    @apply bg-transparent;
-  }
-
-  /* Scrollable area */
-  .card-custom .card-scroll {
-    @apply relative overflow-auto;
-  }
-
-  /* Full height variants */
-  .card-custom.card-stretch {
-    @apply flex flex-col h-full;
-  }
-  .card-custom.card-stretch.gutter-b {
-    /* Sass: height: calc(100% - 25px) */
-    @apply h-[calc(100%-25px)];
-  }
-  .card-custom.card-stretch.card-stretch-half {
-    @apply h-1/2;
-  }
-  .card-custom.card-stretch.card-stretch-half.gutter-b {
-    @apply h-[calc(50%-25px)];
-  }
-  .card-custom.card-stretch.card-stretch-third {
-    @apply h-[33.33%];
-  }
-  .card-custom.card-stretch.card-stretch-third.gutter-b {
-    @apply h-[calc(33.33%-25px)];
-  }
-  .card-custom.card-stretch.card-stretch-fourth {
-    @apply h-1/4;
-  }
-  .card-custom.card-stretch.card-stretch-fourth.gutter-b {
-    @apply h-[calc(25%-25px)];
-  }
-
-  /* Fit style */
-  .card-custom.card-fit > .card-header {
-    @apply border-b-0;
-  }
-  .card-custom.card-fit > .card-footer {
-    @apply border-t-0;
-  }
-
-  /* Extra horizontal padding */
-  .card-custom.card-space {
-    @apply px-[2.25rem];
-  }
-  .card-custom.card-space > .card-header,
-  .card-custom.card-space > .card-body,
-  .card-custom.card-space > .card-footer {
-    @apply px-0;
-  }
-
-  /* Sticky header */
-  .card-custom.card-sticky > .card-header {
-    @apply transition-all duration-300;
-    min-height: 70px;
-  }
-  .card-sticky-on .card-custom.card-sticky > .card-header {
-    @apply fixed top-0 left-0 right-0 bg-white
-      shadow-[0px_1px_15px_1px_rgba(69,65,78,0.1)] z-[101];
-  }
-
-  /* Transparent & shadowless */
-  .card-custom.card-transparent {
-    @apply bg-transparent;
-  }
-  .card-custom.card-shadowless {
-    @apply shadow-none;
-  }
-
-  /* Reset horizontal padding */
-  .card-custom.card-px-0 .card-header,
-  .card-custom.card-px-0 .card-body,
-  .card-custom.card-px-0 .card-footer {
-    @apply px-0;
-  }
-
-  /* Border style */
-  .card-custom.card-border {
-    @apply border border-[#EBEDF3] shadow-none;
-  }
-
-  /* Collapsed */
-  .card-custom.card-collapsed > form,
-  .card-custom.card-collapsed > .card-body {
-    @apply hidden;
-  }
-
-  /* Toggle‐icon transitions (insert your transition if needed) */
-  .card-custom .card-toolbar [data-card-tool="toggle"] i {
-    /* @apply transition-[your-value]; */
-  }
-  .card-custom.card-collapsed .card-toolbar [data-card-tool="toggle"] i {
-    /* @apply rotate-180 transition-[your-value]; */
-  }
-
-  /* Utilities */
-  .card-spacer {
-    @apply p-[2rem_2.25rem] !important;
-  }
-  .card-spacer-x {
-    @apply px-[2.25rem] !important;
-  }
-  .card-spacer-y {
-    @apply py-[2rem] !important;
-  }
-  .card-rounded {
-    @apply rounded-[0.42rem];
-  }
-  .card-rounded-top {
-    @apply rounded-t-[0.42rem];
-  }
-  .card-rounded-bottom {
-    @apply rounded-b-[0.42rem];
-  }
-
-  /* Mobile */
-  @screen sm {
-    .card-custom > .card-header {
-      @apply min-h-0 py-2;
-    }
+    @apply z-20 p-[2rem] px-[2.25rem];
   }
 
   /* ----------- Filter Input Styling ----------- */
   .filter-border {
-    @apply w-full border px-3 py-2 rounded; /* Full width, border, padding, and rounded corners for the input */
+    @apply w-full rounded border px-3 py-2;
+  }
+  .filter-border2 {
+    @apply h-11 w-full rounded-xl border border-slate-300/70 bg-white/80 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400;
   }
 
   .filter-text {
-    @apply block text-gray-500 text-sm; /* Block-level text with gray color and small font for the filter label */
+    @apply block text-sm text-gray-500;
   }
 
   /* ----------- Table Container Styling ----------- */
   .table-responsive-scrollable {
-    /* @apply rounded-[15px] mb-[30px] max-h-[22vmax] overflow-x-scroll; */
-    @apply rounded-[15px] mb-[30px] max-h-[60vh] overflow-x-auto overflow-y-auto;
-    position: sticky;
-    top: 0;
-    /* z-index: 0; */
-    /* Rounded corners, bottom margin, max height based on viewport size, and horizontal scroll if content overflows */
+    @apply mb-[30px] max-h-[60vh] overflow-x-auto overflow-y-auto rounded-[15px];
+    /* position: sticky;
+    top: 0; */
   }
 
   /* ----------- General Table Styling ----------- */
   .table {
-    @apply text-sm table-auto w-full border-separate border-spacing-0;
-    /* Small text, automatic table layout, full width, separate table borders, and no spacing between rows/columns */
+    @apply w-full table-auto border-separate border-spacing-0 text-sm;
   }
 
-  /* ----------- Zebra Stripes for Table Rows ----------- */
+  /* Zebra Stripes */
   .table tbody tr:nth-child(even) {
-    @apply bg-gray-100; /* Light gray background for even rows */
+    @apply bg-gray-100;
   }
 
   .table tbody tr:nth-child(odd) {
-    @apply bg-white; /* White background for odd rows */
+    @apply bg-white;
   }
 
-  /* ----------- Hover Effect for Table Rows ----------- */
+  /* Hover Effect */
   .table tbody tr:hover {
-    @apply bg-gray-200; /* Light gray highlight when hovering over a row */
+    @apply bg-gray-200;
   }
 
-  /* ----------- Table Borders for Cells ----------- */
-  .table {
-    th,
-    td {
-      @apply border-b border-gray-300; /* Light gray border at the bottom of each cell */
-    }
+  /* Table Borders */
+  .table th,
+  .table td {
+    @apply border-b border-gray-300;
   }
 
-  /* ----------- Table Header Styling ----------- */
-  .table thead {
-    th {
-      @apply bg-blue-500 text-white font-bold py-2 px-4 sticky top-0 z-10;
-      /* Blue background for header, white text, bold font, and padding for header cells */
-    }
+  /* Table Header */
+  .table thead th {
+    @apply bg-blue-500 px-4 py-2 font-bold text-white;
+    position: sticky;
+    top: 0;
   }
 
-  /* ----------- Vertical Alignment for Table Header and Cells ----------- */
+  /* Vertical Alignment */
   .table-head-custom {
-    @apply align-middle; /* Vertically center the header content */
+    @apply align-middle;
   }
 
-  .table-vertical-center {
-    th,
-    td {
-      @apply py-3 px-5 align-middle; /* Added padding and vertical centering for both header and cell content */
-    }
+  .table-vertical-center th,
+  .table-vertical-center td {
+    @apply px-5 py-3 align-middle;
   }
 
-  /* ----------- Action Button Styling (Edit, Delete) ----------- */
+  /* Action Buttons Cell */
   .align-action {
-    @apply flex justify-center gap-4 items-center; /* Flexbox for horizontal alignment of buttons with space between them and vertical centering */
+    @apply flex items-center justify-center gap-4;
+  }
+
+  .glass-card {
+    @apply relative z-30 rounded-2xl border border-slate-200/70 bg-white/80 p-3 shadow-sm backdrop-blur;
+  }
+
+  /* ===== Soft Button ===== */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300;
+  }
+
+  /* ===== Rainbow Gradient Button ===== */
+  .btn-rainbow {
+    @apply inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-fuchsia-600 via-indigo-600 to-cyan-500 px-4 py-2 text-sm font-medium text-white shadow-md hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-fuchsia-300;
+  }
+
+  /* ------- Form controls ------- */
+  .form-label {
+    @apply mb-1 block text-sm font-medium text-slate-700;
+  }
+  .form-input {
+    @apply filter-border;
+  } /* reuse punyamu */
+  .form-input--number {
+    @apply filter-border;
+  } /* kalau mau aturan khusus number nanti tinggal tambah */
+  .form-help {
+    @apply mt-1 block text-xs text-slate-500;
+  }
+
+  /* ------- Alerts ------- */
+  .alert {
+    @apply rounded-lg px-4 py-3 text-sm;
+  }
+  .alert--success {
+    @apply alert border border-emerald-200 bg-emerald-50 text-emerald-700;
+  }
+  .alert--error {
+    @apply alert border border-rose-200 bg-rose-50 text-rose-700;
+  }
+
+  /* ------- Buttons ------- */
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-lg text-sm font-semibold transition;
+  }
+  .btn--primary {
+    @apply btn bg-indigo-600 text-white hover:bg-indigo-700;
+  }
+  .btn--gradient {
+    @apply btn bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700;
+  }
+  .btn--soft {
+    @apply inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300;
+  }
+  .btn--danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+  }
+  .btn--sm {
+    @apply px-3 py-1.5;
+  }
+  .btn--md {
+    @apply px-4 py-2;
+  }
+  .btn--disabled {
+    @apply disabled:opacity-60;
+  }
+
+  /* ------- Modal ------- */
+  .modal-body-scroll {
+    @apply max-h-[85vh] overflow-y-auto;
+  }
+  .modal-actions {
+    @apply flex items-center gap-2 pt-2;
+  }
+
+  /* ------- Layout chips yang sudah ada ------- */
+  .glass-card {
+    @apply rounded-2xl border border-slate-200/70 bg-white/80 p-3 shadow-sm backdrop-blur;
   }
 }

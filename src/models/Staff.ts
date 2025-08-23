@@ -17,3 +17,9 @@ export interface LoginDTO {
   staffId?: string;
   password?: string;
 }
+
+export type CreateStaffDTO = {
+  staffName: string;
+  password: string;
+  role: number;
+};

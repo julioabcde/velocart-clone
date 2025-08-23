@@ -7,10 +7,13 @@ import { useEffect, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import Pagination from "@/components/pagination/Pagination";
 import { PAGE_SIZES } from "@/constants/GlobalConstant";
-import Modal from "@/components/modal/Modal";
+// import Modal from "@/components/modal/Modal";
 import { useRouter } from "next/navigation";
 import { ProductService } from "@/services/api/ProductService";
 import { FormatterService } from "@/services/ui/FormatterService";
+import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+import Spinner from "@/components/spinner/Spinner";
+import Modal from "@/components/modal/Modal";
 
 export default function MasterProduct() {
    const router = useRouter();

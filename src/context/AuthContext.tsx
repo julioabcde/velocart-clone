@@ -7,20 +7,34 @@ import { useRouter } from "next/navigation";
 
 const AuthContext = createContext({
   isLoggedIn: false,
-  isLoading: false,
+  setLoggedIn: (_: boolean) => { },
+  isLoggingIn: false,
+  setLoggingIn: (_: boolean) => { },
+  isLoggingOut: false,
+  setLoggingOut: (_: boolean) => { },
+  isAuthChecking: false,
+  setAuthChecking: (_: boolean) => { },
   login: () => { },
   logout: () => { },
-  setLoggedIn: (_: boolean) => { },
-  setLoading: (_: boolean) => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setLoggedIn] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [isLoggingIn, setLoggingIn] = useState(false);
+  const [isLoggingOut, setLoggingOut] = useState(false);
+  const [isAuthChecking, setAuthChecking] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    setLoggedIn(!AuthService.isTokenExpired());
+    if (AuthService.isTokenExpired()) {
+      setLoggedIn(false);
+    }
+    else {
+      setLoggedIn(true);
+    }
+    setTimeout(() => {
+      setAuthChecking(false);
+    }, 1000);
   }, []);
 
   const login = () => {
@@ -28,19 +42,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
+    setLoggingOut(true);
+
     LoginService.logout();
 
-    setLoading(true);
-    setLoggedIn(false);
-
     setTimeout(() => {
-      setLoading(false);
+      setLoggingOut(false);
+      setLoggedIn(false);
+    }, 1500);
+    setTimeout(() => {
       router.push("/login");
-    }, 1000);
+    }, 2500);
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isLoading, login, logout, setLoggedIn, setLoading }}>
+    <AuthContext.Provider value={{ isLoggedIn, setLoggedIn, isLoggingIn, setLoggingIn, isLoggingOut, setLoggingOut, isAuthChecking, setAuthChecking, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

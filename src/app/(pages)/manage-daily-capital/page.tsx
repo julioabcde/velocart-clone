@@ -1,6 +1,10 @@
+import ProtectedRoute from "@/components/protected-route/ProtectedRoute";
+
 export default function MasterDailyCapital() {
   return (
-    <h1>This is Daily Capital Page</h1>
+    <ProtectedRoute>
+      <h1>This is Daily Capital Page</h1>
+    </ProtectedRoute>
   )
 }
 

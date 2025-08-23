@@ -14,8 +14,9 @@ export default function Login() {
   const [staffId, setStaffId] = useState("");
   const [password, setPassword] = useState("");
 
+  const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
-  const { isLoggedIn, setLoggedIn, isLoading, setLoading } = useAuth();
+  const { isLoggedIn, setLoggedIn, isLoggingIn, setLoggingIn } = useAuth();
 
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginDTO, string>>>({});
 
@@ -29,8 +30,8 @@ export default function Login() {
       setLoading(true);
       setLoggedIn(true);
       setTimeout(() => {
-        router.replace("/master/product");
-      }, 1000);
+        router.push("/dashboard");
+      }, 2000);
     }
   }, [router]);
 
@@ -52,6 +53,7 @@ export default function Login() {
   const login = async () => {
     try {
       setLoading(true);
+      setLoggingIn(true);
 
       const response = await LoginService.login(loginParam);
       if (response.responseCode != "00") {
@@ -62,37 +64,37 @@ export default function Login() {
         console.log("message: ", response.message);
 
         setError(true);
-        setLoading(false);
+        return;
       }
-      else {
-        const staffId = response.data.staffId;
-        const role = response.data.role;
-        const token = response.data.token;
-        const ttl = response.data.ttl;
+      const staffId = response.data.staffId;
+      const role = response.data.role;
+      const token = response.data.token;
+      const ttl = response.data.ttl;
 
-        if (staffId && role && token && ttl) {
-          const expiresIn = Date.now() + ttl * 60000;
-
-          localStorage.setItem("staffId", staffId);
-          localStorage.setItem("role", role);
-          localStorage.setItem("token", token);
-          localStorage.setItem("ttl", expiresIn.toString());
-
-          setTimeout(() => {
-            setLoggedIn(true);
-            setLoading(false);
-            router.push("/master/product");
-          }, 1000);
-        }
-        else {
-          setLoading(false);
-        }
+      console.log(response.data);
+      if (!staffId || !role || !token || !ttl) {
+        setError(true);
+        return;
       }
+
+      const expiresIn = Date.now() + ttl * 60000;
+      localStorage.setItem("staffId", staffId);
+      localStorage.setItem("role", role);
+      localStorage.setItem("token", token);
+      localStorage.setItem("ttl", expiresIn.toString());
+
+      setTimeout(() => {
+        setLoggedIn(true);
+        router.push("/dashboard");
+      }, 1500);
     }
     catch (err) {
       console.error("Fetch error:", err);
       setError(true);
+    }
+    finally {
       setLoading(false);
+      setLoggingIn(false);
     }
   };
 
@@ -165,7 +167,8 @@ export default function Login() {
           </div>
         </form>
 
-        {isLoading && <Spinner message={isLoggedIn ? "Logged in! Redirecting..." : "Logging in... Please wait."} />}
+        {isLoggingIn && <Spinner message="Logging in... Please wait." />}
+        {isLoading && isLoggedIn && <Spinner message="Logged in! Redirecting..." />}
       </div>
     </div>
   );

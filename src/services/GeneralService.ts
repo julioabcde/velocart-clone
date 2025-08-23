@@ -1,6 +1,5 @@
-import { BASE_URL, HTTP_UNAUTHORIZED } from "@/constants/GlobalConstant";
+import { BASE_URL } from "@/constants/GlobalConstant";
 import { GeneralResponse, RequestStructure } from "@/models/GeneralDTO";
-import { AuthService } from "./AuthService";
 
 export class GeneralService {
   private static showBlockingRedirectOverlay(message: string = "Session expired. Redirecting...") {
@@ -52,7 +51,6 @@ export class GeneralService {
     document.head.appendChild(style);
   }
 
-
   private static redirectToLogin(message?: string) {
     if (typeof window !== "undefined" && window.location.pathname !== "/login") {
       this.showBlockingRedirectOverlay(message);
@@ -63,10 +61,6 @@ export class GeneralService {
   }
 
   static async fetchData<TData, TBody = unknown>(request: RequestStructure<TBody>): Promise<GeneralResponse<TData>> {
-    if (AuthService.isTokenExpired()) {
-      this.redirectToLogin();
-    }
-
     const token = localStorage.getItem("token");
 
     const { api, method, body } = request;
@@ -78,10 +72,6 @@ export class GeneralService {
     };
 
     const response = await fetch(BASE_URL + api, { method, headers: headers, body: body ? JSON.stringify(body) : undefined });
-
-    if (response.status === HTTP_UNAUTHORIZED) {
-      this.redirectToLogin();
-    }
 
     return response.json();
   }

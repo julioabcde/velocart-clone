@@ -12,6 +12,9 @@ export class LoginService {
       return GeneralService.fetchData<Credential>(request);
    }
    static logout() {
+      localStorage.removeItem("staffId");
+      localStorage.removeItem("role");
       localStorage.removeItem("token");
+      localStorage.removeItem("ttl");
    }
 }

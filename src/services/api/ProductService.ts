@@ -5,55 +5,55 @@ import { GeneralService } from "../GeneralService";
 export class ProductService {
   static getAllProductsPagination(param: PaginationParam) {
     const request: RequestStructure<PaginationParam> = {
-      api: "/get-all-products",
+      api: "/product/list",
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<PaginatedData<Product>>(request);
+    return GeneralService.callApi<PaginatedData<Product>>(request);
   }
 
   static getAllProducts(param: PaginationParam) {
     const request: RequestStructure<PaginationParam> = {
-      api: "/get-all-products",
+      api: "/product/list",
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<Product[]>(request);
+    return GeneralService.callApi<Product[]>(request);
   }
 
   static getProductById(param: ProductByIdDTO) {
     const request: RequestStructure<ProductByIdDTO> = {
-      api: "/get-product-by-product-id",
+      api: "/product/detail",
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<Product>(request);
+    return GeneralService.callApi<Product>(request);
   }
 
   static createProduct(param: CreateEditProductDTO) {
     const request: RequestStructure<CreateEditProductDTO> = {
-      api: "/save-new-product",
+      api: "/product/create",
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<Product>(request);
+    return GeneralService.callApi<Product>(request);
   }
 
   static updateProduct(param: CreateEditProductDTO) {
     const request: RequestStructure<CreateEditProductDTO> = {
-      api: "/update-product",
+      api: "/product/update",
       method: "PUT",
       body: param,
     };
-    return GeneralService.fetchData(request);
+    return GeneralService.callApi(request);
   }
 
   static deleteProduct(param: ProductByIdDTO) {
     const request: RequestStructure<any> = {
-      api: "/delete-product",
+      api: "/product/delete",
       method: "PATCH",
       body: param,
     };
-    return GeneralService.fetchData(request);
+    return GeneralService.callApi(request);
   }
 }

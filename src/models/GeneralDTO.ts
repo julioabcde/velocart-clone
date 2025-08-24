@@ -6,7 +6,7 @@ export interface PaginationParam {
   filter?: string;
 }
 
-export interface RequestStructure<TBody> {
+export interface RequestStructure<TBody = undefined> {
   api: string;
   method?: string;
   body?: TBody;
@@ -24,4 +24,9 @@ export interface GeneralResponse<TData> {
   responseDesc: string,
   message: string,
   data: TData
+}
+
+export interface DropdownOptions {
+  value: string | number,
+  label: string
 }

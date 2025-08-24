@@ -52,7 +52,7 @@ export default function Page() {
 
     try {
       setSubmitting(true);
-      const result = await StaffService.saveNewStaff({
+      const result = await StaffService.createStaff({
         staffName: form.staffName.trim(),
         password: form.password,
         role: Number(form.role),

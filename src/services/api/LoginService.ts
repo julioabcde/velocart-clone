@@ -9,7 +9,7 @@ export class LoginService {
          method: "POST",
          body: param,
       };
-      return GeneralService.fetchData<Credential>(request);
+      return GeneralService.callApi<Credential>(request);
    }
    static logout() {
       localStorage.removeItem("staffId");

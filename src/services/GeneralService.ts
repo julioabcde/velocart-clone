@@ -60,7 +60,7 @@ export class GeneralService {
     }
   }
 
-  static async fetchData<TData, TBody = unknown>(request: RequestStructure<TBody>): Promise<GeneralResponse<TData>> {
+  static async callApi<TData, TBody = unknown>(request: RequestStructure<TBody>): Promise<GeneralResponse<TData>> {
     const token = localStorage.getItem("token");
 
     const { api, method, body } = request;
@@ -71,9 +71,17 @@ export class GeneralService {
       ...(token && { Authorization: `Bearer ${token}` }),
     };
 
-    const response = await fetch(BASE_URL + api, { method, headers: headers, body: body ? JSON.stringify(body) : undefined });
+    const options: RequestInit = {
+      method: method,
+      headers: headers,
+    };
+
+    if (body && method !== 'GET' && method !== 'HEAD') {
+      options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(BASE_URL + api, options);
 
     return response.json();
   }
 }
-

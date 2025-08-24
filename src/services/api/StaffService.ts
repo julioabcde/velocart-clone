@@ -5,46 +5,46 @@ import { CreateStaffDTO, Staff } from "@/models/Staff";
 export class StaffService {
   static getAllStaffsPagination(param: PaginationParam) {
     const request: RequestStructure<PaginationParam> = {
-      api: "/get-all-staffs",
+      api: "/staff/list",
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<PaginatedData<Staff>>(request);
+    return GeneralService.callApi<PaginatedData<Staff>>(request);
   }
 
   static getStaffByStaffId(staffId: string) {
     const request: RequestStructure<{ staffId: string }> = {
-      api: "/get-staff-by-staff-id",
+      api: "/staff/detail",
       method: "POST",
       body: { staffId },
     };
-    return GeneralService.fetchData<Staff>(request);
+    return GeneralService.callApi<Staff>(request);
   }
 
-  static saveNewStaff(param: CreateStaffDTO) {
+  static createStaff(param: CreateStaffDTO) {
     const request: RequestStructure<CreateStaffDTO> = {
-      api: "/save-new-staff",
+      api: "/staff/create",
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<Staff>(request);
+    return GeneralService.callApi<Staff>(request);
   }
 
   static updateStaff(param: Partial<Staff>) {
     const request: RequestStructure<Partial<Staff>> = {
-      api: "/update-staff",
+      api: "/staff/update",
       method: "PUT",
       body: param,
     };
-    return GeneralService.fetchData<Staff>(request);
+    return GeneralService.callApi<Staff>(request);
   }
 
   static deleteStaff(staffId: string) {
     const request: RequestStructure<{ staffId: string }> = {
-      api: "/delete-staff",
+      api: "/staff/delete",
       method: "PATCH",
       body: { staffId },
     };
-    return GeneralService.fetchData<{ success: boolean }>(request);
+    return GeneralService.callApi<{ success: boolean }>(request);
   }
 }

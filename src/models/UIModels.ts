@@ -1,3 +1,4 @@
+import { MessageType } from "@/enum/GlobalEnum";
 import { ElementType } from "react";
 
 export interface SubItem {
@@ -32,4 +33,9 @@ export interface PaginationProps {
 
 export interface SpinnerProps {
   message?: string;
+}
+
+export interface MessageState {
+  type: MessageType;
+  message: string;
 }

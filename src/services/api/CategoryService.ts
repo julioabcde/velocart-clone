@@ -9,7 +9,7 @@ export class CategoryService {
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<PaginatedData<Category>>(request);
+    return GeneralService.callApi<PaginatedData<Category>>(request);
   }
 
   static getAllCategories(param: PaginationParam) {
@@ -18,7 +18,7 @@ export class CategoryService {
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<Category[]>(request);
+    return GeneralService.callApi<Category[]>(request);
   }
 
   static getCategoryById(param: CategoryByIdDTO) {
@@ -27,7 +27,7 @@ export class CategoryService {
       method: "POST",
       body: param,
     };
-    return GeneralService.fetchData<Category>(request);
+    return GeneralService.callApi<Category>(request);
   }
 
   static createCategory(param: CreateCategoryDTO) {
@@ -36,7 +36,7 @@ export class CategoryService {
       method: "POST",
       body: param,
     }
-    return GeneralService.fetchData<Category>(request);
+    return GeneralService.callApi<Category>(request);
   }
 
   static updateCategory(param: EditCategoryDTO) {
@@ -45,7 +45,7 @@ export class CategoryService {
       method: "PUT",
       body: param,
     }
-    return GeneralService.fetchData<Category>(request);
+    return GeneralService.callApi<Category>(request);
   }
 
   static deleteCategory(param: CategoryByIdDTO) {
@@ -54,6 +54,6 @@ export class CategoryService {
       method: "PATCH",
       body: param,
     }
-    return GeneralService.fetchData(request);
+    return GeneralService.callApi(request);
   }
 }

@@ -23,3 +23,10 @@ export type CreateStaffDTO = {
   password: string;
   role: number;
 };
+
+export type EditStaffDTO = {
+  staffId: string;
+  staffName: string;
+  password: string;
+  role: number;
+};

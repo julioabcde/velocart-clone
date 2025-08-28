@@ -14,7 +14,7 @@ export interface SupplierDTO {
   email?: string;
 }
 
-export interface CreateEditSupplierDTO {
+export interface CreateSupplierDTO {
   supplierName: string;
   address?: string;
   phone?: string;

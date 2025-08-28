@@ -11,6 +11,7 @@ export class LoginService {
       };
       return GeneralService.callApi<Credential>(request);
    }
+   
    static logout() {
       localStorage.removeItem("staffId");
       localStorage.removeItem("role");

@@ -1,5 +1,5 @@
 import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
-import { CreateEditProductDTO, Product, ProductByIdDTO, ProductDTO } from "@/models/Product";
+import { CreateEditProductDTO, Product, ProductByProductIdDTO, ProductDTO } from "@/models/Product";
 import { GeneralService } from "../GeneralService";
 
 export class ProductService {
@@ -21,8 +21,8 @@ export class ProductService {
     return GeneralService.callApi<Product[]>(request);
   }
 
-  static getProductById(param: ProductByIdDTO) {
-    const request: RequestStructure<ProductByIdDTO> = {
+  static getProductByProductId(param: ProductByProductIdDTO) {
+    const request: RequestStructure<ProductByProductIdDTO> = {
       api: "/product/detail",
       method: "POST",
       body: param,
@@ -48,7 +48,7 @@ export class ProductService {
     return GeneralService.callApi(request);
   }
 
-  static deleteProduct(param: ProductByIdDTO) {
+  static deleteProduct(param: ProductByProductIdDTO) {
     const request: RequestStructure<any> = {
       api: "/product/delete",
       method: "PATCH",

@@ -1,6 +1,6 @@
 import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
 import { GeneralService } from "../GeneralService";
-import { CreateEditSupplierDTO, EditSupplierDTO, Supplier } from "@/models/Supplier";
+import { CreateSupplierDTO, EditSupplierDTO, Supplier, SupplierByIdDTO } from "@/models/Supplier";
 
 
 export class SupplierService {
@@ -13,18 +13,18 @@ export class SupplierService {
         return GeneralService.callApi<PaginatedData<Supplier>>(request);
     };
 
-    static getSupplierBySupplierId(supplierId: number) {
-        const request: RequestStructure<{ supplierId: number}> = {
+    static getSupplierById(param: SupplierByIdDTO) {
+        const request: RequestStructure<SupplierByIdDTO> = {
             api: "/supplier/detail",
             method: "POST",
-            body: { supplierId},
+            body: param,
         };
 
         return GeneralService.callApi<Supplier>(request);
     }
 
-    static createSupplier(param: CreateEditSupplierDTO) {
-        const request: RequestStructure<CreateEditSupplierDTO> = {
+    static createSupplier(param: CreateSupplierDTO) {
+        const request: RequestStructure<CreateSupplierDTO> = {
             api: "/supplier/create",
             method: "POST",
             body: param,
@@ -38,16 +38,15 @@ export class SupplierService {
             method: "PUT",
             body: param,
         };
-        return GeneralService.callApi<Supplier>(request);
+        return GeneralService.callApi(request);
     }
 
-    static deleteSupplier(id: number) {
-        const request: RequestStructure<{ id: number}> = {
+    static deleteSupplier(param: SupplierByIdDTO) {
+        const request: RequestStructure<SupplierByIdDTO> = {
             api: "/supplier/delete",
             method: "PATCH",
-            body: { id},
+            body: param,
         };
-
-        return GeneralService.callApi<{ success: boolean}>(request);
+        return GeneralService.callApi(request);
     }
 }

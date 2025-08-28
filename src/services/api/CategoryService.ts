@@ -5,7 +5,7 @@ import { GeneralService } from "../GeneralService";
 export class CategoryService {
   static getAllCategoriesPagination(param: PaginationParam) {
     const request: RequestStructure<PaginationParam> = {
-      api: "/get-all-categories",
+      api: "/category/list",
       method: "POST",
       body: param,
     };
@@ -14,7 +14,7 @@ export class CategoryService {
 
   static getAllCategories(param: PaginationParam) {
     const request: RequestStructure<PaginationParam> = {
-      api: "/get-all-categories",
+      api: "/category/list",
       method: "POST",
       body: param,
     };
@@ -23,7 +23,7 @@ export class CategoryService {
 
   static getCategoryById(param: CategoryByIdDTO) {
     const request: RequestStructure<CategoryByIdDTO> = {
-      api: "/get-category-by-id",
+      api: "/category/detail",
       method: "POST",
       body: param,
     };
@@ -32,7 +32,7 @@ export class CategoryService {
 
   static createCategory(param: CreateCategoryDTO) {
     const request: RequestStructure<CreateCategoryDTO> = {
-      api: "/save-new-category",
+      api: "/category/create",
       method: "POST",
       body: param,
     }
@@ -41,7 +41,7 @@ export class CategoryService {
 
   static updateCategory(param: EditCategoryDTO) {
     const request: RequestStructure<EditCategoryDTO> = {
-      api: "/update-category",
+      api: "/category/update",
       method: "PUT",
       body: param,
     }
@@ -50,7 +50,7 @@ export class CategoryService {
 
   static deleteCategory(param: CategoryByIdDTO) {
     const request: RequestStructure<CategoryByIdDTO> = {
-      api: "/delete-category",
+      api: "/category/delete",
       method: "PATCH",
       body: param,
     }

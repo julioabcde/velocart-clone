@@ -26,7 +26,7 @@ export interface GeneralResponse<TData> {
   data: TData
 }
 
-export interface DropdownOptions {
+export interface DropdownOption {
   value: string | number,
   label: string
 }

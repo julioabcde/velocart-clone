@@ -3,6 +3,7 @@ export const ERROR_MSG = {
   CREATE: (obj: string) => `Failed to create new ${obj}!`,
   UPDATE: (obj: string) => `Failed to update ${obj}!`,
   DELETE: (obj: string) => `Failed to delete ${obj}!`,
+  NOTFOUND: 'No data found!',
 } as const;
 
 export const SUCCESS_MSG = {

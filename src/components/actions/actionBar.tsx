@@ -31,11 +31,11 @@ function Pill({
       onClick={onClick}
       disabled={disabled}
       aria-label={typeof children === 'string' ? (children as string) : undefined}
-      className={`group inline-flex items-center rounded-full text-xs font-semibold transition ${VARIANT[color]} h-8 px-2 hover:px-3 disabled:cursor-not-allowed disabled:opacity-50 ${className} `}
+      className={`group inline-flex items-center rounded-full text-xs font-semibold transition ${VARIANT[color]} h-8 px-2 hover:px-3 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:px-2 ${className} `}
     >
       {icon && <span className='shrink-0'>{icon}</span>}
       <span
-        className='max-w-0 -translate-x-1 overflow-hidden whitespace-nowrap opacity-0 group-hover:ml-1 group-hover:max-w-[200px] group-hover:translate-x-0 group-hover:opacity-100'
+        className='max-w-0 -translate-x-1 overflow-hidden whitespace-nowrap opacity-0 group-hover:ml-1 group-hover:max-w-[200px] group-hover:translate-x-0 group-hover:opacity-100 group-disabled:ml-0 group-disabled:max-w-0 group-disabled:translate-x-0 group-disabled:opacity-0'
         style={{
           transitionDelay: '0ms',
           transitionProperty: 'all',
@@ -55,6 +55,10 @@ export function RowActions<T>({
   onPrint,
   confirmDelete = true,
   className = '',
+  disableView,
+  disableEdit,
+  disableDelete,
+  disablePrint,
 }: {
   item: T;
   onView?: (row: T) => void;
@@ -63,6 +67,10 @@ export function RowActions<T>({
   onPrint?: (row: T) => void;
   confirmDelete?: boolean;
   className?: string;
+  disableView?: (row: T) => boolean;
+  disableEdit?: (row: T) => boolean;
+  disableDelete?: (row: T) => boolean;
+  disablePrint?: (row: T) => boolean;
 }) {
   const handleDelete = () => {
     if (!onDelete) return;
@@ -72,22 +80,42 @@ export function RowActions<T>({
   return (
     <div className={`inline-flex items-center justify-end gap-2 ${className}`}>
       {onView && (
-        <Pill color='emerald' icon={<Eye className='h-4 w-4' />} onClick={() => onView(item)}>
+        <Pill
+          color='emerald'
+          icon={<Eye className='h-4 w-4' />}
+          onClick={() => onView(item)}
+          disabled={disableView?.(item)}
+        >
           View
         </Pill>
       )}
       {onEdit && (
-        <Pill color='indigo' icon={<Pencil className='h-4 w-4' />} onClick={() => onEdit(item)}>
+        <Pill
+          color='indigo'
+          icon={<Pencil className='h-4 w-4' />}
+          onClick={() => onEdit(item)}
+          disabled={disableEdit?.(item)}
+        >
           Edit
         </Pill>
       )}
       {onDelete && (
-        <Pill color='rose' icon={<Trash2 className='h-4 w-4' />} onClick={() => onDelete(item)}>
+        <Pill
+          color='rose'
+          icon={<Trash2 className='h-4 w-4' />}
+          onClick={() => onDelete(item)}
+          disabled={disableDelete?.(item)}
+        >
           Delete
         </Pill>
       )}
       {onPrint && (
-        <Pill color='cyan' icon={<Printer className='h-4 w-4' />} onClick={() => onPrint(item)}>
+        <Pill
+          color='cyan'
+          icon={<Printer className='h-4 w-4' />}
+          onClick={() => onPrint(item)}
+          disabled={disablePrint?.(item)}
+        >
           Print
         </Pill>
       )}

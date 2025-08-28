@@ -38,6 +38,6 @@ export interface EditProductDTO {
   sellingPrice: number;
 }
 
-export interface ProductByIdDTO {
+export interface ProductByProductIdDTO {
   productId: string;
 }

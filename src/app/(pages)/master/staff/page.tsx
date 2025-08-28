@@ -6,8 +6,8 @@ import Pagination from '@/components/pagination/Pagination';
 import ProtectedRoute from '@/components/protected-route/ProtectedRoute';
 import Modal from '@/components/modal/Modal';
 import { PAGE_SIZES } from '@/constants/GlobalConstant';
-import { DropdownOptions, PaginationParam } from '@/models/GeneralDTO';
-import { CreateStaffDTO, EditStaffDTO, Staff } from '@/models/Staff';
+import { DropdownOption, PaginationParam } from '@/models/GeneralDTO';
+import { CreateStaffDTO, EditStaffDTO, Staff, StaffByStaffIdDTO } from '@/models/Staff';
 import { StaffService } from '@/services/api/StaffService';
 import { useEffect, useMemo, useState } from 'react';
 import { Download, Plus, RefreshCw } from 'lucide-react';
@@ -28,25 +28,48 @@ export default function MasterStaff() {
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
 
-  const [roles, setRoles] = useState<DropdownOptions[] | null>([]);
+  const [staff, setStaff] = useState<Staff | null>(null);
+  const [roles, setRoles] = useState<DropdownOption[] | null>([]);
 
   const getMasterRole = async (search?: string) => {
     try {
       const response = await MasterService.getMasterRole('');
       if (response.responseCode !== ResponseCode.SUCCESS) {
-        console.log('error: ', response.message);
         return null;
       } else {
         return response.data;
       }
-    } catch (e: any) {
+    } catch {
+      return null;
+    }
+  };
+
+  const getStaffByStaffId = async (staffId: string) => {
+    const getStaffByStaffIdParam: StaffByStaffIdDTO = {
+      staffId: staffId,
+    };
+
+    try {
+      const response = await StaffService.getStaffByStaffId(getStaffByStaffIdParam);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        return null;
+      } else {
+        return response.data;
+      }
+    } catch {
       return null;
     }
   };
 
   // #region LANDING
   const getAllStaffsParam: PaginationParam = useMemo(
-    () => ({ pagination: true, perPage: pageSize, page: page, query: query, filter: filter }),
+    () => ({
+      pagination: true,
+      perPage: pageSize,
+      page: page,
+      query: query,
+      filter: filter,
+    }),
     [page, pageSize, query, filter]
   );
 
@@ -55,12 +78,12 @@ export default function MasterStaff() {
     setError(false);
 
     try {
-      const res = await StaffService.getAllStaffsPagination(getAllStaffsParam);
-      if (res.responseCode !== ResponseCode.SUCCESS) {
+      const response = await StaffService.getAllStaffsPagination(getAllStaffsParam);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
         setError(true);
       } else {
-        setData(res.data.data);
-        setTotal(res.data.total);
+        setData(response.data.data);
+        setTotal(response.data.total);
       }
     } catch {
       setError(true);
@@ -85,7 +108,7 @@ export default function MasterStaff() {
     formState: { errors: errorsCreate },
   } = useForm<CreateStaffDTO>({ shouldUnregister: true });
 
-  const onOpenCreate = async () => {
+  const onCreate = async () => {
     const roleList = await getMasterRole('');
     setRoles(roleList);
 
@@ -114,7 +137,10 @@ export default function MasterStaff() {
         setOpenCreate(false);
       }
     } catch (e: any) {
-      setMsgCreate({ type: MessageType.ERROR, message: e?.message || ERROR_MSG.GENERAL });
+      setMsgCreate({
+        type: MessageType.ERROR,
+        message: e?.message || ERROR_MSG.GENERAL,
+      });
     } finally {
       setSavingCreate(false);
     }
@@ -123,11 +149,11 @@ export default function MasterStaff() {
 
   // #region VIEW
   const [openView, setOpenView] = useState(false);
-  const [staff, setStaff] = useState<Staff | null>(null);
 
-  const onOpenView = (staff: Staff) => {
-    setRoles([]);
-    setStaff(staff);
+  const onView = async (staff: Staff) => {
+    const selectectedStaff = await getStaffByStaffId(staff?.staffId!);
+    setStaff(selectectedStaff);
+
     setOpenView(true);
   };
   // #endregion
@@ -144,14 +170,15 @@ export default function MasterStaff() {
     formState: { errors: errorsEdit },
   } = useForm<EditStaffDTO>({ shouldUnregister: true });
 
-  const onOpenEdit = async (staff: Staff) => {
+  const onEdit = async (staff: Staff) => {
     const roleList = await getMasterRole('');
     setRoles(roleList);
 
-    const selectedRole = await getMasterRole(staff.roleName);
+    const selectectedStaff = await getStaffByStaffId(staff?.staffId!);
+    const selectedRole = await getMasterRole(selectectedStaff?.roleName);
     resetEdit({
-      staffId: staff.staffId,
-      staffName: staff.staffName ?? '',
+      staffId: selectectedStaff?.staffId ?? '',
+      staffName: selectectedStaff?.staffName ?? '',
       role: selectedRole ? Number(selectedRole[0].value) : 0,
     });
 
@@ -180,7 +207,10 @@ export default function MasterStaff() {
         setOpenEdit(false);
       }
     } catch (e: any) {
-      setMsgEdit({ type: MessageType.ERROR, message: e?.message || ERROR_MSG.GENERAL });
+      setMsgEdit({
+        type: MessageType.ERROR,
+        message: e?.message || ERROR_MSG.GENERAL,
+      });
     } finally {
       setSavingEdit(false);
     }
@@ -190,7 +220,7 @@ export default function MasterStaff() {
   // #region DELETE
   const [openDelete, setOpenDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [msgDelete, setMsgDelete] = useState<string | null>(null);
+  const [msgDelete, setMsgDelete] = useState<MessageState | null>(null);
 
   const onDelete = (staff: Staff) => {
     setStaff(staff);
@@ -198,20 +228,31 @@ export default function MasterStaff() {
     setOpenDelete(true);
   };
 
-  const submitDelete = async () => {
-    if (!staff?.staffId) return;
+  const submitDelete = async (staffId: string) => {
     setMsgDelete(null);
+
     try {
       setDeleting(true);
-      const res = await StaffService.deleteStaff(String(staff.staffId));
-      if (!res || (res as any).responseCode !== '00')
-        setMsgDelete((res as any)?.message || 'Gagal menghapus staff.');
-      else {
-        await getAllStaffs();
+
+      const deleteStaffParam: StaffByStaffIdDTO = {
+        staffId: staffId,
+      };
+
+      const response = await StaffService.deleteStaff(deleteStaffParam);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        setMsgDelete({
+          type: MessageType.ERROR,
+          message: response.message || ERROR_MSG.DELETE('Staff'),
+        });
+      } else {
         setOpenDelete(false);
+        await getAllStaffs();
       }
     } catch (e: any) {
-      setMsgDelete(e?.message || 'Terjadi kesalahan saat menghapus.');
+      setMsgDelete({
+        type: MessageType.ERROR,
+        message: e?.message || ERROR_MSG.GENERAL,
+      });
     } finally {
       setDeleting(false);
     }
@@ -231,9 +272,8 @@ export default function MasterStaff() {
           </div>
         </div>
 
-        {/* Toolbar */}
         <div className='card-toolbar'>
-          <button className='btn--soft' onClick={onOpenCreate}>
+          <button className='btn--soft' onClick={onCreate}>
             <Plus />
             Add New Staff
           </button>
@@ -248,7 +288,6 @@ export default function MasterStaff() {
         </div>
 
         <div className='card-body'>
-          {/* filters */}
           <div className='mb-6 flex justify-between gap-4'>
             <div className='glass-card w-1/3'>
               <small className='filter-text text-xs'>
@@ -275,7 +314,6 @@ export default function MasterStaff() {
             </div>
           </div>
 
-          {/* table */}
           <div className='table-responsive-scrollable'>
             <table className='table-head-custom table-vertical-center table w-full text-center'>
               <thead>
@@ -316,8 +354,8 @@ export default function MasterStaff() {
                       <td className='text-center'>
                         <RowActions
                           item={item}
-                          onView={onOpenView}
-                          onEdit={onOpenEdit}
+                          onView={onView}
+                          onEdit={onEdit}
                           onDelete={onDelete}
                           onPrint={onPrint}
                         />
@@ -348,7 +386,7 @@ export default function MasterStaff() {
         </div>
       </div>
 
-      {/* ===== Modal Create ===== */}
+      {/* Modal Create */}
       <Modal
         isOpen={openCreate}
         onClose={() => setOpenCreate(false)}
@@ -367,9 +405,10 @@ export default function MasterStaff() {
 
           <div>
             <label htmlFor='staffName' className='form-label'>
-              Staff Name
+              Staff Name <span className='text-red-500'>*</span>
             </label>
             <input
+              type='text'
               id='staffName'
               className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.staffName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
               {...registerCreate('staffName', {
@@ -394,11 +433,11 @@ export default function MasterStaff() {
 
           <div>
             <label htmlFor='password' className='form-label'>
-              Password
+              Password <span className='text-red-500'>*</span>
             </label>
             <input
-              id='password'
               type='password'
+              id='password'
               className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
               {...registerCreate('password', {
                 required: {
@@ -422,7 +461,7 @@ export default function MasterStaff() {
 
           <div>
             <label htmlFor='role' className='form-label'>
-              Role
+              Role <span className='text-red-500'>*</span>
             </label>
             <select
               id='role'
@@ -440,7 +479,7 @@ export default function MasterStaff() {
               <option value={0} disabled hidden>
                 Select a role
               </option>
-              {roles?.map((role: DropdownOptions) => (
+              {roles?.map((role: DropdownOption) => (
                 <option key={role.value} value={role.value}>
                   {role.label}
                 </option>
@@ -454,8 +493,8 @@ export default function MasterStaff() {
           <div className='modal-actions'>
             <button
               type='submit'
-              disabled={savingCreate}
               className='btn--gradient btn--md btn--disabled'
+              disabled={savingCreate}
             >
               {savingCreate ? 'Saving…' : 'Save'}
             </button>
@@ -471,7 +510,7 @@ export default function MasterStaff() {
         </form>
       </Modal>
 
-      {/* ===== Modal View ===== */}
+      {/* Modal View */}
       <Modal
         isOpen={openView}
         onClose={() => setOpenView(false)}
@@ -507,14 +546,13 @@ export default function MasterStaff() {
             type='button'
             onClick={() => setOpenView(false)}
             className='btn--gradient btn--md'
-            disabled={savingCreate}
           >
             OK
           </button>
         </div>
       </Modal>
 
-      {/* ===== Modal Edit ===== */}
+      {/* Modal Edit */}
       <Modal
         isOpen={openEdit}
         onClose={() => setOpenEdit(false)}
@@ -537,17 +575,18 @@ export default function MasterStaff() {
             </label>
             <input
               id='staffId'
-              {...registerEdit('staffId')}
+              className='form-input border-gray-300 text-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
               disabled
-              className='form-input focus:outline-none focus:ring-1 border-gray-300 focus:ring-blue-500 text-gray-500'
+              {...registerEdit('staffId')}
             />
           </div>
 
           <div>
             <label htmlFor='staffName' className='form-label'>
-              Staff Name
+              Staff Name <span className='text-red-500'>*</span>
             </label>
             <input
+              type='text'
               id='staffName'
               className={`form-input focus:outline-none focus:ring-1 ${errorsEdit.staffName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
               {...registerEdit('staffName', {
@@ -572,7 +611,7 @@ export default function MasterStaff() {
 
           <div>
             <label htmlFor='role' className='form-label'>
-              Role
+              Role <span className='text-red-500'>*</span>
             </label>
             <select
               id='role'
@@ -590,22 +629,20 @@ export default function MasterStaff() {
               <option value={0} disabled hidden>
                 Select a role
               </option>
-              {roles?.map((role: DropdownOptions) => (
+              {roles?.map((role: DropdownOption) => (
                 <option key={role.value} value={role.value}>
                   {role.label}
                 </option>
               ))}
             </select>
-            {errorsEdit.role && (
-              <p className='text-sm text-red-600'>{errorsEdit.role.message}</p>
-            )}
+            {errorsEdit.role && <p className='text-sm text-red-600'>{errorsEdit.role.message}</p>}
           </div>
 
           <div className='modal-actions'>
             <button
               type='submit'
-              disabled={savingEdit}
               className='btn--gradient btn--md btn--disabled'
+              disabled={savingEdit}
             >
               {savingEdit ? 'Saving…' : 'Save'}
             </button>
@@ -621,7 +658,7 @@ export default function MasterStaff() {
         </form>
       </Modal>
 
-      {/* ===== Modal Delete ===== */}
+      {/* Modal Delete */}
       <Modal
         isOpen={openDelete}
         onClose={() => setOpenDelete(false)}
@@ -629,17 +666,17 @@ export default function MasterStaff() {
         size='sm'
         backdrop='blur'
       >
-        {msgDelete && <div className='alert--error mb-3'>{msgDelete}</div>}
+        {msgDelete && <div className='alert--error mb-3'>{msgDelete.message}</div>}
         <p className='text-sm'>
-          Hapus staff <span className='font-semibold'>{staff?.staffName}</span> (ID:{' '}
-          {staff?.staffId})?
+          Are you sure you want to delete <span className='font-semibold'>{staff?.staffName}</span>{' '}
+          (ID: <span className='font-semibold'>{staff?.staffId}</span>)?
         </p>
         <div className='mt-4 flex justify-end gap-2'>
           <button onClick={() => setOpenDelete(false)} className='btn--soft' disabled={deleting}>
             Cancel
           </button>
           <button
-            onClick={submitDelete}
+            onClick={() => submitDelete(staff?.staffId!)}
             className='btn--danger btn--md btn--disabled'
             disabled={deleting}
           >

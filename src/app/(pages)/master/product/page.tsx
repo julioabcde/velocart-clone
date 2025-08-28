@@ -2,18 +2,20 @@
 
 import DateRangePickerV1 from '@/components/datepicker/DateRangePicker';
 import { PaginationParam } from '@/models/GeneralDTO';
-import { ProductByIdDTO, Product } from '@/models/Product';
-import { useEffect, useState } from 'react';
-import { FaSyncAlt } from 'react-icons/fa';
+import { ProductByProductIdDTO, Product } from '@/models/Product';
+import { useEffect, useMemo, useState } from 'react';
 import Pagination from '@/components/pagination/Pagination';
 import { PAGE_SIZES } from '@/constants/GlobalConstant';
-// import Modal from "@/components/modal/Modal";
 import { useRouter } from 'next/navigation';
 import { ProductService } from '@/services/api/ProductService';
 import { FormatterService } from '@/services/ui/FormatterService';
 import ProtectedRoute from '@/components/protected-route/ProtectedRoute';
-import Spinner from '@/components/spinner/Spinner';
 import Modal from '@/components/modal/Modal';
+import { RowActions } from '@/components/actions/actionBar';
+import { MessageType, ResponseCode } from '@/enum/GlobalEnum';
+import { MessageState } from '@/models/UIModels';
+import { ERROR_MSG } from '@/constants/MessageConstant';
+import { Download, Plus, RefreshCw } from 'lucide-react';
 
 export default function MasterProduct() {
   const router = useRouter();
@@ -22,37 +24,37 @@ export default function MasterProduct() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
-  const [deleteId, setDeleteId] = useState('');
-  const [productName, setProductName] = useState('');
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState('');
+
+  const [product, setProduct] = useState<Product | null>(null);
 
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const getAllProductsParam: PaginationParam = {
-    pagination: true,
-    perPage: pageSize,
-    page: page,
-    query: '',
-    filter: '',
-  };
+  // #region LANDING
+  const getAllProductsParam: PaginationParam = useMemo(
+    () => ({
+      pagination: true,
+      perPage: pageSize,
+      page: page,
+      query: query,
+      filter: filter,
+    }),
+    [page, pageSize, query, filter]
+  );
 
   const getAllProducts = async () => {
+    setLoading(true);
+    setError(false);
+
     try {
       const response = await ProductService.getAllProductsPagination(getAllProductsParam);
       if (response.responseCode != '00') {
-        console.log('responseDate: ', response.responseDate);
-        console.log('responseCode: ', response.responseCode);
-        console.log('responseDesc: ', response.responseDesc);
-        console.log('message: ', response.message);
-
         setError(true);
       } else {
-        const items = response.data.data;
-        const totalCount = response.data.total;
-
-        setData(items);
-        setTotal(totalCount);
+        setData(response.data.data);
+        setTotal(response.data.total);
       }
     } catch (err) {
       setError(true);
@@ -63,54 +65,90 @@ export default function MasterProduct() {
 
   useEffect(() => {
     getAllProducts();
-  }, [page, pageSize]);
+  }, [getAllProductsParam]);
+  // #endregion
 
-  const handleAddNewProduct = () => {
+  // #region CREATE
+  const onCreate = () => {
     router.push('/master/product/create');
   };
+  // #endregion
 
-  const handleEdit = (productId: string) => {
-    router.push(`/master/product/${productId}`);
-  };
+  // #region VIEW
+  const [openView, setOpenView] = useState(false);
 
-  const openModal = (productId: string, productName: string) => {
-    setDeleteId(productId);
-    setProductName(productName);
-    setIsModalOpen(true);
-  };
+  const getProductByProductId = async (productId: string) => {
+    const getProductByProductIdParam: ProductByProductIdDTO = {
+      productId: productId,
+    };
 
-  const closeModal = () => {
-    setDeleteId('');
-    setProductName('');
-    setIsModalOpen(false);
-  };
-
-  const handleDelete = async () => {
     try {
-      const deleteProductParam: ProductByIdDTO = {
-        productId: deleteId,
+      const response = await ProductService.getProductByProductId(getProductByProductIdParam);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        return null;
+      } else {
+        return response.data;
+      }
+    } catch {
+      return null;
+    }
+  };
+
+  const onView = async (product: Product) => {
+    const selectedProduct = await getProductByProductId(product.productId);
+    setProduct(selectedProduct);
+
+    setOpenView(true);
+  };
+  // #endregion
+
+  // #region EDIT
+  const onEdit = (product: Product) => {
+    router.push(`/master/product/${product.productId}`);
+  };
+  // #endregion
+
+  // #region DELETE
+  const [openDelete, setOpenDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [msgDelete, setMsgDelete] = useState<MessageState | null>(null);
+
+  const onDelete = (product: Product) => {
+    setProduct(product);
+    setMsgDelete(null);
+    setOpenDelete(true);
+  };
+
+  const submitDelete = async (productId: string) => {
+    setMsgDelete(null);
+
+    try {
+      setDeleting(true);
+
+      const deleteProductParam: ProductByProductIdDTO = {
+        productId: productId,
       };
 
       const response = await ProductService.deleteProduct(deleteProductParam);
-      if (response.responseCode !== '00') {
-        console.log('responseDate: ', response.responseDate);
-        console.log('responseCode: ', response.responseCode);
-        console.log('responseDesc: ', response.responseDesc);
-        console.log('message: ', response.message);
-
-        setError(true);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        setMsgDelete({
+          type: MessageType.ERROR,
+          message: response.message || ERROR_MSG.DELETE('Product'),
+        });
       } else {
-        closeModal();
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-        }, 1500);
-        getAllProducts();
+        setOpenDelete(false);
+        await getAllProducts();
       }
-    } catch (error) {
-      setError(true);
+    } catch (e: any) {
+      setMsgDelete({
+        type: MessageType.ERROR,
+        message: e?.message || ERROR_MSG.GENERAL,
+      });
+    } finally {
+      setDeleting(false);
     }
   };
+  // #endregion
 
   return (
     <ProtectedRoute>
@@ -119,46 +157,48 @@ export default function MasterProduct() {
           <div className='card-title'>
             <h3 className='card-label'>Product</h3>
           </div>
+        </div>
 
-          <div className='card-toolbar'>
-            <button
-              className='mr-3 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white transition hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700'
-              onClick={handleAddNewProduct}
-            >
-              Add New Product
-            </button>
-            <button className='btn btn-primary mr-3'>Excel CSV</button>
-            <button className='btn btn-primary btn-refresh mr-10'>
-              <FaSyncAlt />
-            </button>
-          </div>
+        {/* Toolbar */}
+        <div className='card-toolbar'>
+          <button className='btn--soft' onClick={onCreate}>
+            <Plus />
+            Add New Product
+          </button>
+          <button className='btn--soft'>
+            <Download />
+            Excel CSV
+          </button>
+          <button className='btn--soft' onClick={getAllProducts} title='Refresh'>
+            <RefreshCw />
+            Refresh
+          </button>
         </div>
 
         <div className='card-body'>
           <div className='mb-6 flex justify-between gap-4'>
-            <div className='w-1/3'>
-              <DateRangePickerV1></DateRangePickerV1>
+            <div className='glass-card w-1/3'>
+              <small className='filter-text text-xs'>
+                <b>Filter</b> Tanggal
+              </small>
+              <DateRangePickerV1 />
             </div>
 
-            <div className='w-1/3'>
-              <div>
-                <select className='filter-border'>
-                  <option>Instalasi A</option>
-                  <option>Instalasi B</option>
-                </select>
-                <small className='filter-text'>
-                  <b>Filter</b> Instalasi
-                </small>
-              </div>
+            <div className='glass-card w-1/3'>
+              <small className='filter-text text-xs'>
+                <b>Filter</b> Instalasi
+              </small>
+              <select className='filter-border2'>
+                <option>Instalasi A</option>
+                <option>Instalasi B</option>
+              </select>
             </div>
 
-            <div className='w-1/3'>
-              <div>
-                <input type='text' placeholder='Cari' className='filter-border' />
-                <small className='filter-text'>
-                  <b>Kolom</b> pencarian
-                </small>
-              </div>
+            <div className='glass-card w-1/3'>
+              <small className='filter-text text-xs'>
+                <b>Kolom</b> pencarian
+              </small>
+              <input type='text' placeholder='Cari' className='filter-border2' />
             </div>
           </div>
 
@@ -166,54 +206,55 @@ export default function MasterProduct() {
             <table className='table-head-custom table-vertical-center table w-full text-center'>
               <thead>
                 <tr>
+                  <th className='w-[240px]'>ACTION</th>
                   <th className='text-center'>PRODUCT ID</th>
                   <th className='text-center'>CATEGORY</th>
                   <th className='text-center'>PRODUCT NAME</th>
-                  <th className='text-center'>BASE PRICE</th>
                   <th className='text-center'>SELLING PRICE</th>
-                  <th className='text-center'>UNIT</th>
-                  <th className='text-center'>ACTION</th>
                 </tr>
               </thead>
-
               <tbody>
-                {Array.isArray(data) && data.length > 0 ? (
-                  data.map((item) => (
-                    <tr key={item.productId}>
-                      <td className='text-center'>{item.productId}</td>
-                      <td className='max-w-[70px] truncate text-center'>{item.categoryName}</td>
-                      <td className='max-w-[200px] truncate text-center'>{item.productName}</td>
-                      <td className='text-center'>
-                        {FormatterService.formatRupiah(item.basePrice)}
-                      </td>
-                      <td className='text-center'>
-                        {FormatterService.formatRupiah(item.sellingPrice)}
-                      </td>
-                      <td className='text-center'>{item.unit}</td>
-                      <td>
-                        <div className='align-action'>
-                          <button onClick={() => handleEdit(item.productId ?? '')}>
-                            <img src='/icon/EditIcon.png' alt='edit' width='35' />
-                          </button>
-                          <button
-                            onClick={() => openModal(item.productId ?? '', item.productName ?? '')}
-                          >
-                            <img src='/icon/DelIcon.png' alt='delete' width='35' />
-                          </button>
-                          <button>
-                            <img src='/icon/PrintIcon.png' alt='view' width='35' />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
+                {isError && (
+                  <tr>
+                    <td colSpan={7} className='py-4 text-center text-rose-600'>
+                      Fail to load data.
+                    </td>
+                  </tr>
+                )}
+                {isLoading && !isError && (
+                  <tr>
+                    <td colSpan={7} className='py-4 text-center text-slate-500'>
+                      Loading Product...
+                    </td>
+                  </tr>
+                )}
+                {!isLoading && !isError && data.length === 0 && (
                   <tr>
                     <td colSpan={7} className='py-4 text-center text-gray-500'>
                       No data to display
                     </td>
                   </tr>
                 )}
+                {!isLoading &&
+                  !isError &&
+                  data.map((item) => (
+                    <tr key={item.productId}>
+                      <td>
+                        <RowActions
+                          item={item}
+                          onView={onView}
+                          onEdit={onEdit}
+                          onDelete={onDelete}
+                        />
+                      </td>
+                      <td className='text-center'>{item.productId}</td>
+                      <td className='max-w-[70px] truncate text-center'>{item.categoryName}</td>
+                      <td className='max-w-[200px] truncate text-center'>{item.productName}</td>
+                      <td className='text-center'>
+                        {FormatterService.formatRupiah(item.sellingPrice)}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -232,30 +273,88 @@ export default function MasterProduct() {
             showFirstLast={true}
           />
         </div>
-
-        <Modal isOpen={isModalOpen} onClose={closeModal} title='Delete Product'>
-          <p>
-            Are you sure you want to delete{' '}
-            <span className='break-words font-semibold'>{productName}</span>?
-          </p>
-          <div className='mt-4 flex justify-end space-x-2'>
-            <button
-              onClick={handleDelete}
-              className='rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600'
-            >
-              Delete
-            </button>
-            <button
-              onClick={closeModal}
-              className='rounded bg-gray-200 px-4 py-2 hover:bg-gray-300'
-            >
-              Cancel
-            </button>
-          </div>
-        </Modal>
-
-        {isLoading && <Spinner message='Deleting product...' />}
       </div>
+
+      {/* Modal View */}
+      <Modal
+        isOpen={openView}
+        onClose={() => setOpenView(false)}
+        title='Detail Product'
+        size='md'
+        backdrop='blur'
+      >
+        {product ? (
+          <div className='grid grid-cols-2 gap-x-6 gap-y-3 pb-2 text-sm'>
+            <div>
+              <div className='text-slate-500'>Product ID</div>
+              <div className='font-medium'>{product.productId}</div>
+            </div>
+            <div>
+              <div className='text-slate-500'>Product Name</div>
+              <div className='font-medium'>{product.productName}</div>
+            </div>
+            <div>
+              <div className='text-slate-500'>Category</div>
+              <div className='font-medium'>{product.categoryName}</div>
+            </div>
+            <div>
+              <div className='text-slate-500'>Unit</div>
+              <div className='font-medium'>{product.unit}</div>
+            </div>
+            <div>
+              <div className='text-slate-500'>Base Price</div>
+              <div className='font-medium'>{FormatterService.formatRupiah(product.basePrice)}</div>
+            </div>
+            <div>
+              <div className='text-slate-500'>Selling Price</div>
+              <div className='font-medium'>
+                {FormatterService.formatRupiah(product.sellingPrice)}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className='text-sm text-slate-500'>No data found!</div>
+        )}
+
+        <div className='modal-actions'>
+          <button
+            type='button'
+            onClick={() => setOpenView(false)}
+            className='btn--gradient btn--md'
+          >
+            OK
+          </button>
+        </div>
+      </Modal>
+
+      {/* Modal Delete */}
+      <Modal
+        isOpen={openDelete}
+        onClose={() => setOpenDelete(false)}
+        title='Delete Product'
+        size='sm'
+        backdrop='blur'
+      >
+        {msgDelete && <div className='alert--error mb-3'>{msgDelete.message}</div>}
+        <p className='text-sm'>
+          Are you sure you want to delete{' '}
+          <span className='font-semibold'>{product?.productName}</span> (ID:{' '}
+          <span className='font-semibold'>{product?.productId}</span>)?
+        </p>
+        
+        <div className='modal-actions'>
+          <button onClick={() => setOpenDelete(false)} className='btn--soft' disabled={deleting}>
+            Cancel
+          </button>
+          <button
+            onClick={() => submitDelete(product?.productId!)}
+            className='btn--danger btn--md btn--disabled'
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting…' : 'Delete'}
+          </button>
+        </div>
+      </Modal>
     </ProtectedRoute>
   );
 }

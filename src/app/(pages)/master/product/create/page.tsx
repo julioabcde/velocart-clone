@@ -1,87 +1,54 @@
-'use client'
+'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { PaginationParam } from '@/models/GeneralDTO';
-import { SUCCESS_CODE } from '@/constants/GlobalConstant';
+import { DropdownOption } from '@/models/GeneralDTO';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash.debounce';
-import { CategoryService } from '@/services/api/CategoryService';
 import { ProductService } from '@/services/api/ProductService';
 import { useRouter } from 'next/navigation';
 import { CreateEditProductDTO } from '@/models/Product';
 import ProtectedRoute from '@/components/protected-route/ProtectedRoute';
 import Modal from '@/components/modal/Modal';
 import Spinner from '@/components/spinner/Spinner';
+import { MasterService } from '@/services/api/MasterService';
+import { MessageType, ResponseCode } from '@/enum/GlobalEnum';
+import { MessageState } from '@/models/UIModels';
+import { Controller, useForm } from 'react-hook-form';
+import { ERROR_MSG, SUCCESS_MSG } from '@/constants/MessageConstant';
 
 export default function CreateProduct() {
   const router = useRouter();
 
-  const [productId, setProductId] = useState("");
-  const [categoryId, setCategoryId] = useState(0);
-  const [productName, setProductName] = useState("");
-  const [unit, setUnit] = useState("");
-  const [basePrice, setBasePrice] = useState(0);
-  const [sellingPrice, setSellingPrice] = useState(0);
+  const [categories, setCategories] = useState<DropdownOption[] | null>([]);
 
-  const [isLoading, setLoading] = useState(false);
-  const [isError, setError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [savingCreate, setSavingCreate] = useState(false);
+  const [msgCreate, setMsgCreate] = useState<MessageState | null>(null);
 
-  const [categoryList, setCategoryList] = useState<{ value: number; label: string }[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<{ value: number; label: string } | null>(null);
+  const {
+    register: registerCreate,
+    handleSubmit: handleSubmitCreate,
+    control: controlCreate,
+    formState: { errors: errorsCreate },
+  } = useForm<CreateEditProductDTO>({ shouldUnregister: true });
 
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof CreateEditProductDTO, string>>>({});
-  const [message, setMessage] = useState('');
-
-  const createProductParam: CreateEditProductDTO = {
-    productId: productId,
-    categoryId: categoryId,
-    productName: productName,
-    unit: unit,
-    basePrice: basePrice,
-    sellingPrice: sellingPrice,
-  };
-
-  const getAllCategories = async (searchText?: string) => {
+  const getMasterCategory = async (search?: string) => {
     try {
-      const getAllCategoriesParam: PaginationParam = {
-        pagination: false,
-        perPage: 10,
-        page: 1,
-        query: searchText || "",
-        filter: "",
-      };
-
-      const response = await CategoryService.getAllCategories(getAllCategoriesParam);
-      if (response.responseCode != SUCCESS_CODE) {
-        console.log("responseDate: ", response.responseDate);
-        console.log("responseCode: ", response.responseCode);
-        console.log("responseDesc: ", response.responseDesc);
-        console.log("message: ", response.message);
-
-        return [];
+      const response = await MasterService.getMasterCategory(search);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        return null;
+      } else {
+        return response.data;
       }
-      else {
-        const list = response.data?.map((c) => ({
-          value: c.id,
-          label: c.categoryName || ''
-        })) || [];
-
-        return list;
-      }
-    }
-    catch (err) {
-      setError(true);
-
-      return [];
+    } catch {
+      return null;
     }
   };
 
   const onInitialLoad = async () => {
-    const list = await getAllCategories();
-    setCategoryList(list);
-    setSelectedCategory(list.find(c => c.value === categoryId) || null);
-  }
+    const categoryList = await getMasterCategory('');
+    setCategories(categoryList);
+  };
 
   useEffect(() => {
     onInitialLoad();
@@ -89,88 +56,44 @@ export default function CreateProduct() {
 
   const debouncedGetAllCategories = useCallback(
     debounce((query: string, callback: (options: any[]) => void) => {
-      getAllCategories(query).then((options) => {
-        callback(options);
+      getMasterCategory(query).then((options) => {
+        callback(options ?? []);
       });
     }, 500),
     []
   );
 
-  const validateCreateProduct = () => {
-    const errors: Partial<Record<keyof CreateEditProductDTO, string>> = {};
+  const submitCreate = async (createProductParam: CreateEditProductDTO) => {
+    setMsgCreate(null);
 
-    if (!productId.trim()) {
-      errors.productId = "Product ID is required!";
-    }
-
-    if (Number(categoryId) === 0) {
-      console.log("cat id error");
-      errors.categoryId = "Category is requried!";
-    }
-
-    if (!productName.trim()) {
-      errors.productName = "Product Name is required!";
-    }
-
-    if (!unit.trim()) {
-      errors.unit = "Unit is required!";
-    }
-
-    if (basePrice === 0) {
-      errors.basePrice = "Base Price must be greater than 0!";
-    }
-
-    if (sellingPrice === 0) {
-      errors.sellingPrice = "Selling Price must be grater than 0!";
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length > 0;
-  };
-
-  const createProduct = async () => {
     try {
-      setLoading(true);
+      setSavingCreate(true);
 
       const response = await ProductService.createProduct(createProductParam);
-      if (response.responseCode !== SUCCESS_CODE) {
-        console.log("responseDate:", response.responseDate);
-        console.log("responseCode:", response.responseCode);
-        console.log("responseDesc:", response.responseDesc);
-        console.log("message:", response.message);
-
-        setMessage(response.message);
-        setError(true);
-        setLoading(false);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        setMsgCreate({
+          type: MessageType.ERROR,
+          message: response.message || ERROR_MSG.CREATE('Product'),
+        });
+      } else {
+        setMsgCreate({
+          type: MessageType.SUCCESS,
+          message: response.message || SUCCESS_MSG.CREATE('Product'),
+        });
+        setIsModalOpen(true);
       }
-      else {
-        setMessage(response.message);
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-          setIsModalOpen(true);
-        }, 1500);
-      }
-    }
-    catch (err) {
-      console.error("Fetch error:", err);
-      setError(true);
-      setLoading(false);
+    } catch (e: any) {
+      setMsgCreate({
+        type: MessageType.ERROR,
+        message: e?.message || ERROR_MSG.GENERAL,
+      });
+    } finally {
+      setSavingCreate(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const hasError = validateCreateProduct();
-
-    if (!hasError) {
-      await createProduct();
-    }
-  };
-
-  const handleCancel = () => {
-    router.push("/master/product");
+  const onCancel = () => {
+    router.push('/master/product');
   };
 
   const closeModal = () => {
@@ -179,216 +102,226 @@ export default function CreateProduct() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-6xl bg-white rounded-2xl shadow p-6">
-          <h1 className="text-xl text-center font-bold mb-4">Create Product</h1>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className='min-h-screen bg-slate-50 p-6'>
+        <div className='mx-auto max-w-6xl rounded-2xl bg-white p-6 shadow'>
+          <h1 className='mb-4 text-center text-xl font-bold'>Create Product</h1>
+          <form onSubmit={handleSubmitCreate(submitCreate)} className='space-y-5'>
+            {msgCreate?.type === MessageType.ERROR && (
+              <div className='alert--error'>{msgCreate.message}</div>
+            )}
+
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <div>
-                <label htmlFor="productId" className="block text-sm font-medium mb-1">Product ID <span className="text-red-500">*</span></label>
+                <label htmlFor='productId' className='form-label'>
+                  Product ID / Barcode <span className='text-red-500'>*</span>
+                </label>
                 <input
-                  type="text"
-                  id="productId"
-                  name="productId"
-                  value={productId}
-                  onChange={(e) => {
-                    setProductId(e.target.value);
-                    if (fieldErrors.productId) {
-                      setFieldErrors((prev) => ({ ...prev, productId: undefined }));
-                    }
-                  }}
-                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.productId ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-                  placeholder="e.g., BRG-0001"
+                  type='text'
+                  id='productId'
+                  className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.productId ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                  {...registerCreate('productId', {
+                    required: {
+                      value: true,
+                      message: 'Product ID is required!',
+                    },
+                  })}
+                  placeholder='e.g., BRG-0001'
                 />
-                {fieldErrors.productId && (
-                  <p className="col-start-3 col-span-4 text-sm text-red-600">
-                    {fieldErrors.productId}
-                  </p>
+                {errorsCreate.productId && (
+                  <p className='text-sm text-red-600'>{errorsCreate.productId.message}</p>
                 )}
               </div>
+
               <div>
-                <label htmlFor="category" className="block text-sm font-medium mb-1">Category <span className="text-red-500">*</span></label>
-                <AsyncSelect
-                  inputId="category"
-                  cacheOptions
-                  defaultOptions={categoryList}
-                  value={selectedCategory}
-                  loadOptions={debouncedGetAllCategories}
-                  onChange={(e: any) => {
-                    setSelectedCategory(e)
-                    setCategoryId(Number(e?.value) || 0);
-                    if (fieldErrors.categoryId) {
-                      setFieldErrors((prev) => ({ ...prev, categoryId: undefined }));
-                    }
+                <label htmlFor='categoryId' className='form-label'>
+                  Category <span className='text-red-500'>*</span>
+                </label>
+                <Controller
+                  name='categoryId'
+                  control={controlCreate}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: 'Please select a category!',
+                    },
                   }}
-                  isSearchable
-                  placeholder="Select a category..."
-                  styles={{
-                    control: (base, state) => ({
-                      ...base,
-                      borderWidth: '1px',
-                      borderColor: fieldErrors.categoryId ? '#dc2626' : '#d1d5db',
-                      boxShadow: state.isFocused
-                        ? fieldErrors.categoryId
-                          ? '0 0 0 2px #dc2626'
-                          : '0 0 0 2px #3b82f6'
-                        : 'none',
-                      '&:hover': {
-                        borderColor: fieldErrors.categoryId ? '#dc2626' : '#d1d5db',
-                      },
-                      borderRadius: '0.375rem',
-                    }),
-                    input: (base) => ({
-                      ...base,
-                      fontSize: '0.875rem',
-                    }),
-                    singleValue: (base) => ({
-                      ...base,
-                      fontSize: '0.875rem',
-                    }),
-                    placeholder: (base) => ({
-                      ...base,
-                      fontSize: '0.875rem',
-                      color: '#9ca3af',
-                    }),
-                    menu: (base) => ({
-                      ...base,
-                      fontSize: '0.875rem',
-                    }),
+                  render={({ field }) => {
+                    return (
+                      <AsyncSelect
+                        inputId='categoryId'
+                        cacheOptions
+                        defaultOptions={categories || []}
+                        loadOptions={debouncedGetAllCategories}
+                        isSearchable
+                        placeholder='Select a category...'
+                        styles={{
+                          control: (base, state) => ({
+                            ...base,
+                            borderWidth: '1px',
+                            borderColor: errorsCreate.categoryId ? '#dc2626' : '#d1d5db',
+                            boxShadow: state.isFocused
+                              ? errorsCreate.categoryId
+                                ? '0 0 0 1px #dc2626'
+                                : '0 0 0 1px #3b82f6'
+                              : 'none',
+                            '&:hover': {
+                              borderColor: errorsCreate.categoryId ? '#dc2626' : '#d1d5db',
+                            },
+                            borderRadius: '0.375rem',
+                          }),
+                          input: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                          placeholder: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                            color: '#9ca3af',
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                        }}
+                        value={categories?.find((opt) => opt.value === field.value)}
+                        onChange={(selected) => field.onChange(selected?.value)}
+                      />
+                    );
                   }}
                 />
-                {fieldErrors.categoryId && (
-                  <p className="col-start-3 col-span-4 text-sm text-red-600">
-                    {fieldErrors.categoryId}
-                  </p>
+
+                {errorsCreate.categoryId && (
+                  <p className='text-sm text-red-600'>{errorsCreate.categoryId.message}</p>
                 )}
               </div>
             </div>
 
             <div>
-              <label htmlFor="productName" className="block text-sm font-medium mb-1">Product Name <span className="text-red-500">*</span></label>
+              <label htmlFor='productName' className='form-label'>
+                Product Name <span className='text-red-500'>*</span>
+              </label>
               <input
-                type="text"
-                id="productName"
-                name="productName"
-                value={productName}
-                onChange={(e) => {
-                  setProductName(e.target.value);
-                  if (fieldErrors.productName) {
-                    setFieldErrors((prev) => ({ ...prev, productName: undefined }));
-                  }
-                }}
-                className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.productName ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-                placeholder="e.g., Amoxilin BPJS"
+                type='text'
+                id='productName'
+                className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.productName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                {...registerCreate('productName', {
+                  required: {
+                    value: true,
+                    message: 'Product name is required!',
+                  },
+                  maxLength: {
+                    value: 255,
+                    message: 'Maximum product name length is 255 characters!',
+                  },
+                })}
+                placeholder='e.g., Amoxilin BPJS'
               />
-              {fieldErrors.productName && (
-                <p className="col-start-3 col-span-4 text-sm text-red-600">
-                  {fieldErrors.productName}
-                </p>
+              {errorsCreate.productName && (
+                <p className='text-sm text-red-600'>{errorsCreate.productName.message}</p>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
               <div>
-                <label htmlFor="unit" className="block text-sm font-medium mb-1">Unit <span className="text-red-500">*</span></label>
+                <label htmlFor='unit' className='form-label'>
+                  Unit <span className='text-red-500'>*</span>
+                </label>
                 <input
-                  type="text"
-                  id="unit"
-                  name="unit"
-                  value={unit}
-                  onChange={(e) => {
-                    setUnit(e.target.value);
-                    if (fieldErrors.unit) {
-                      setFieldErrors((prev) => ({ ...prev, unit: undefined }));
-                    }
-                  }}
-                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.unit ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
-                  placeholder="e.g., strip, box"
+                  type='text'
+                  id='unit'
+                  className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.unit ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                  {...registerCreate('unit', {
+                    required: {
+                      value: true,
+                      message: 'Unit is required!',
+                    },
+                  })}
+                  placeholder='e.g., strip, box'
                 />
-                {fieldErrors.unit && (
-                  <p className="col-start-3 col-span-4 text-sm text-red-600">
-                    {fieldErrors.unit}
-                  </p>
+                {errorsCreate.unit && (
+                  <p className='text-sm text-red-600'>{errorsCreate.unit.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="basePrice" className="block text-sm font-medium mb-1">Base Price <span className="text-red-500">*</span></label>
+                <label htmlFor='basePrice' className='form-label'>
+                  Base Price <span className='text-red-500'>*</span>
+                </label>
                 <input
-                  type="number"
-                  id="basePrice"
-                  name="basePrice"
-                  inputMode="decimal"
-                  value={basePrice === 0 ? '' : basePrice}
-                  onChange={(e) => {
-                    setBasePrice(Number(e.target.value));
-                    if (fieldErrors.basePrice) {
-                      setFieldErrors((prev) => ({ ...prev, basePrice: undefined }));
-                    }
-                  }}
-                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.basePrice ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+                  type='number'
+                  id='basePrice'
+                  {...registerCreate('basePrice', {
+                    required: {
+                      value: true,
+                      message: 'Base price is required!',
+                    },
+                    validate: (value) => value > 0 || 'Base price must be greater than 0!',
+                    valueAsNumber: true,
+                  })}
+                  className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.basePrice ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                 />
-                {fieldErrors.basePrice && (
-                  <p className="col-start-3 col-span-4 text-sm text-red-600">
-                    {fieldErrors.basePrice}
-                  </p>
+                {errorsCreate.basePrice && (
+                  <p className='text-sm text-red-600'>{errorsCreate.basePrice.message}</p>
                 )}
               </div>
+
               <div>
-                <label htmlFor="sellingPrice" className="block text-sm font-medium mb-1">Selling Price <span className="text-red-500">*</span></label>
+                <label htmlFor='sellingPrice' className='form-label'>
+                  Selling Price <span className='text-red-500'>*</span>
+                </label>
                 <input
-                  type="number"
-                  id="sellingPrice"
-                  name="sellingPrice"
-                  inputMode="decimal"
-                  value={sellingPrice === 0 ? '' : sellingPrice}
-                  onChange={(e) => {
-                    setSellingPrice(Number(e.target.value));
-                    if (fieldErrors.sellingPrice) {
-                      setFieldErrors((prev) => ({ ...prev, sellingPrice: undefined }));
-                    }
-                  }}
-                  className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${fieldErrors.sellingPrice ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+                  type='number'
+                  id='sellingPrice'
+                  {...registerCreate('sellingPrice', {
+                    required: {
+                      value: true,
+                      message: 'Selling price is required!',
+                    },
+                    validate: (value) => value > 0 || 'Selling price must be greater than 0!',
+                    valueAsNumber: true,
+                  })}
+                  className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.sellingPrice ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                 />
-                {fieldErrors.sellingPrice && (
-                  <p className="col-start-3 col-span-4 text-sm text-red-600">
-                    {fieldErrors.sellingPrice}
-                  </p>
+                {errorsCreate.sellingPrice && (
+                  <p className='text-sm text-red-600'>{errorsCreate.sellingPrice.message}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex justify-between pt-2">
-              <p className="text-xs text-red-500">* Required</p>
-              <div className="flex justify-center gap-3">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="text-[15px] px-3.5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {isLoading ? 'Saving...' : 'Save'}
-                </button>
-                <button type="button" onClick={handleCancel} className="text-[15px] px-3.5 py-2.5 rounded-xl bg-gray-400 text-white font-semibold hover:bg-gray-500 disabled:opacity-50">
-                  Cancel
-                </button>
-              </div>
+            <div className='flex justify-end gap-3 pt-2'>
+              <button
+                type='submit'
+                className='btn--gradient btn--md btn--disabled'
+                disabled={savingCreate}
+              >
+                {savingCreate ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                type='button'
+                onClick={onCancel}
+                className='btn--soft'
+                disabled={savingCreate}
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </div>
 
-        <Modal isOpen={isModalOpen} onClose={closeModal} title="Create Product">
-          <p>{message}</p>
-          <div className="mt-4 flex justify-end space-x-2">
-            <button
-              onClick={closeModal}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
+        <Modal isOpen={isModalOpen} onClose={closeModal} title='Create Product'>
+          <p>{msgCreate?.message}</p>
+          <div className='mt-4 flex justify-end space-x-2'>
+            <button onClick={closeModal} className='btn--gradient'>
               OK
             </button>
           </div>
         </Modal>
 
-        {isLoading && <Spinner message="Saving new product..." />}
+        {savingCreate && <Spinner message='Saving new product...' />}
       </div>
     </ProtectedRoute>
   );

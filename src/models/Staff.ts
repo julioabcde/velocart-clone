@@ -18,15 +18,19 @@ export interface LoginDTO {
   password?: string;
 }
 
-export type CreateStaffDTO = {
+export interface CreateStaffDTO {
   staffName: string;
   password: string;
   role: number;
 };
 
-export type EditStaffDTO = {
+export interface EditStaffDTO {
   staffId: string;
   staffName: string;
   password: string;
   role: number;
 };
+
+export interface StaffByStaffIdDTO {
+  staffId: string;
+}

@@ -1,42 +1,46 @@
-import { Database, Computer, ChartLine } from "lucide-react";
+import { Database, Computer, ChartLine } from 'lucide-react';
 
 export const SIDEBAR_CONSTANT = [
   {
-    label: "Dashboard",
-    href: "/dashboard",
+    label: 'Dashboard',
+    href: '/dashboard',
     icon: ChartLine,
   },
   {
-    label: "Master",
+    label: 'Master',
     icon: Database,
     subItem: [
       {
-        label: "Category",
-        href: "/master/category",
+        label: 'Category',
+        href: '/master/category',
       },
       {
-        label: "Daily Capital",
-        href: "/manage-daily-capital",
+        label: 'Daily Capital',
+        href: '/manage-daily-capital',
       },
       {
-        label: "Product",
-        href: "/master/product",
+        label: 'Product',
+        href: '/master/product',
       },
       {
-        label: "Staff",
-        href: "/master/staff",
+        label: 'Staff',
+        href: '/master/staff',
+      },
+      {
+        label: 'Supplier',
+        href: '/master/supplier',
       },
     ],
   },
   {
-    label: "Point of Sales",
-    href: "/point-of-sales",
+    label: 'Salesforce',
+    href: '/point-of-sales',
     icon: Computer,
     subItem: [
       {
-        label: "Manage Cashier",
-        href: "/manage-cashier",
+        label: 'Point of Sales',
+        href: '/manage-cashier',
       },
     ],
-  }
+  },
 ];

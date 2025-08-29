@@ -27,4 +27,17 @@ export class MasterService {
     };
     return GeneralService.callApi<DropdownOption[]>(request);
   }
+
+  static getMasterSupplier(search?: string) {
+    let apiUrl = '/master/supplier';
+    if (search) {
+      apiUrl += `?search=${encodeURIComponent(search)}`;
+    }
+
+    const request: RequestStructure = {
+      api: apiUrl,
+      method: 'GET',
+    };
+    return GeneralService.callApi<DropdownOption[]>(request);
+  }
 }

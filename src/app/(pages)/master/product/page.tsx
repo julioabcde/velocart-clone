@@ -311,6 +311,24 @@ export default function MasterProduct() {
                 {FormatterService.formatRupiah(product.sellingPrice)}
               </div>
             </div>
+
+            <div className='col-span-2'>
+              <div className='mb-1 text-slate-500'>Suppliers</div>
+              <div className='flex flex-wrap gap-2'>
+                {product.suppliers && product.suppliers.length > 0 ? (
+                  product.suppliers.map((s: any) => (
+                    <span
+                      key={s.value}
+                      className='rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600'
+                    >
+                      {s.label}
+                    </span>
+                  ))
+                ) : (
+                  <span className='text-slate-400'>-</span>
+                )}
+              </div>
+            </div>
           </div>
         ) : (
           <div className='text-sm text-slate-500'>No data found!</div>
@@ -341,7 +359,7 @@ export default function MasterProduct() {
           <span className='font-semibold'>{product?.productName}</span> (ID:{' '}
           <span className='font-semibold'>{product?.productId}</span>)?
         </p>
-        
+
         <div className='modal-actions'>
           <button onClick={() => setOpenDelete(false)} className='btn--soft' disabled={deleting}>
             Cancel

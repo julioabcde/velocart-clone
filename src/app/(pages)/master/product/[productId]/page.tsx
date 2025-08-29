@@ -24,7 +24,9 @@ export default function ViewEditProduct() {
   const { productId } = useParams<{ productId: string }>();
 
   const [categories, setCategories] = useState<DropdownOption[] | null>(null);
+  const [suppliers, setSuppliers] = useState<DropdownOption[] | null>([]);
 
+  const [isLoading, setLoading] = useState(false);
   const [isNotFound, setNotFound] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
@@ -95,9 +97,27 @@ export default function ViewEditProduct() {
     }
   };
 
+  const getMasterSupplier = async (search?: string) => {
+    try {
+      const response = await MasterService.getMasterSupplier(search);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        return null;
+      } else {
+        return response.data;
+      }
+    } catch {
+      return null;
+    }
+  };
+
   const onInitialLoad = async () => {
+    setLoading(true);
+
     const categoryList = await getMasterCategory('');
     setCategories(categoryList);
+
+    const supplierList = await getMasterSupplier('');
+    setSuppliers(supplierList);
 
     const selectedProduct = await getProductById(productId);
     const selectedCategory = await getCategoryById(selectedProduct?.categoryId!);
@@ -108,7 +128,10 @@ export default function ViewEditProduct() {
       unit: selectedProduct?.unit ?? '',
       basePrice: selectedProduct?.basePrice ?? 0,
       sellingPrice: selectedProduct?.sellingPrice ?? 0,
+      suppliers: selectedProduct?.suppliers?.map((s) => Number(s.value)) ?? [],
     });
+    
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -118,6 +141,15 @@ export default function ViewEditProduct() {
   const debouncedGetAllCategories = useCallback(
     debounce((query: string, callback: (options: any[]) => void) => {
       getMasterCategory(query).then((options) => {
+        callback(options ?? []);
+      });
+    }, 500),
+    []
+  );
+
+  const debouncedGetAllSuppliers = useCallback(
+    debounce((query: string, callback: (options: any[]) => void) => {
+      getMasterSupplier(query).then((options) => {
         callback(options ?? []);
       });
     }, 500),
@@ -351,6 +383,82 @@ export default function ViewEditProduct() {
               </div>
             </div>
 
+            <div>
+              <div>
+                <label htmlFor='suppliers' className='form-label'>
+                  Suppliers <span className='text-red-500'>*</span>
+                </label>
+                <Controller
+                  name='suppliers'
+                  control={controlEdit}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: 'Please select at least one supplier!',
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <AsyncSelect
+                        inputId='suppliers'
+                        cacheOptions
+                        defaultOptions={suppliers || []}
+                        loadOptions={debouncedGetAllSuppliers}
+                        isSearchable
+                        isMulti
+                        placeholder='Select suppliers...'
+                        styles={{
+                          control: (base, state) => ({
+                            ...base,
+                            borderWidth: '1px',
+                            borderColor: errorsEdit.suppliers ? '#dc2626' : '#d1d5db',
+                            boxShadow: state.isFocused
+                              ? errorsEdit.suppliers
+                                ? '0 0 0 1px #dc2626'
+                                : '0 0 0 1px #3b82f6'
+                              : 'none',
+                            '&:hover': {
+                              borderColor: errorsEdit.suppliers ? '#dc2626' : '#d1d5db',
+                            },
+                            borderRadius: '0.375rem',
+                          }),
+                          input: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                          placeholder: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                            color: '#9ca3af',
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                        }}
+                        value={
+                          (field.value || []).map((id: number) =>
+                            suppliers?.find((opt) => opt.value === id)
+                          ) || []
+                        }
+                        onChange={(selected) =>
+                          field.onChange(selected ? selected.map((opt) => opt?.value) : [])
+                        }
+                      />
+                    );
+                  }}
+                />
+
+                {errorsEdit.suppliers && (
+                  <p className='text-sm text-red-600'>{errorsEdit.suppliers.message}</p>
+                )}
+              </div>
+            </div>
+
             <div className='flex justify-end gap-3 pt-2'>
               <button
                 type='submit'
@@ -401,6 +509,8 @@ export default function ViewEditProduct() {
         )}
 
         {savingEdit && <Spinner message='Saving product...' />}
+
+        {isLoading && <Spinner message='Loading product...' />}
       </div>
     </ProtectedRoute>
   );

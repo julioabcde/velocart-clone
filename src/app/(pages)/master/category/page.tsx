@@ -473,6 +473,7 @@ export default function MasterCategory() {
             </div>
           )}
 
+          <input type='hidden' {...registerEdit('id')} />
           <div>
             <label htmlFor='categoryName' className='form-label'>
               Category Name <span className='text-red-500'>*</span>

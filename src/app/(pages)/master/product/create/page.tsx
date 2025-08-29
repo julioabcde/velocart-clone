@@ -20,6 +20,7 @@ export default function CreateProduct() {
   const router = useRouter();
 
   const [categories, setCategories] = useState<DropdownOption[] | null>([]);
+  const [suppliers, setSuppliers] = useState<DropdownOption[] | null>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savingCreate, setSavingCreate] = useState(false);
@@ -45,9 +46,25 @@ export default function CreateProduct() {
     }
   };
 
+  const getMasterSupplier = async (search?: string) => {
+    try {
+      const response = await MasterService.getMasterSupplier(search);
+      if (response.responseCode !== ResponseCode.SUCCESS) {
+        return null;
+      } else {
+        return response.data;
+      }
+    } catch {
+      return null;
+    }
+  };
+
   const onInitialLoad = async () => {
     const categoryList = await getMasterCategory('');
     setCategories(categoryList);
+
+    const supplierList = await getMasterSupplier('');
+    setSuppliers(supplierList);
   };
 
   useEffect(() => {
@@ -57,6 +74,15 @@ export default function CreateProduct() {
   const debouncedGetAllCategories = useCallback(
     debounce((query: string, callback: (options: any[]) => void) => {
       getMasterCategory(query).then((options) => {
+        callback(options ?? []);
+      });
+    }, 500),
+    []
+  );
+
+  const debouncedGetAllSuppliers = useCallback(
+    debounce((query: string, callback: (options: any[]) => void) => {
+      getMasterSupplier(query).then((options) => {
         callback(options ?? []);
       });
     }, 500),
@@ -292,6 +318,82 @@ export default function CreateProduct() {
               </div>
             </div>
 
+            <div>
+              <div>
+                <label htmlFor='suppliers' className='form-label'>
+                  Suppliers <span className='text-red-500'>*</span>
+                </label>
+                <Controller
+                  name='suppliers'
+                  control={controlCreate}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: 'Please select at least one supplier!',
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <AsyncSelect
+                        inputId='suppliers'
+                        cacheOptions
+                        defaultOptions={suppliers || []} // preload if available
+                        loadOptions={debouncedGetAllSuppliers} // async loader
+                        isSearchable
+                        isMulti
+                        placeholder='Select suppliers...'
+                        styles={{
+                          control: (base, state) => ({
+                            ...base,
+                            borderWidth: '1px',
+                            borderColor: errorsCreate.suppliers ? '#dc2626' : '#d1d5db',
+                            boxShadow: state.isFocused
+                              ? errorsCreate.suppliers
+                                ? '0 0 0 1px #dc2626'
+                                : '0 0 0 1px #3b82f6'
+                              : 'none',
+                            '&:hover': {
+                              borderColor: errorsCreate.suppliers ? '#dc2626' : '#d1d5db',
+                            },
+                            borderRadius: '0.375rem',
+                          }),
+                          input: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                          placeholder: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                            color: '#9ca3af',
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            fontSize: '0.875rem',
+                          }),
+                        }}
+                        value={
+                          (field.value || []).map((id: number) =>
+                            suppliers?.find((opt) => opt.value === id)
+                          ) || []
+                        }
+                        onChange={(selected) =>
+                          field.onChange(selected ? selected.map((opt) => opt?.value) : [])
+                        }
+                      />
+                    );
+                  }}
+                />
+
+                {errorsCreate.suppliers && (
+                  <p className='text-sm text-red-600'>{errorsCreate.suppliers.message}</p>
+                )}
+              </div>
+            </div>
+
             <div className='flex justify-end gap-3 pt-2'>
               <button
                 type='submit'
@@ -315,7 +417,7 @@ export default function CreateProduct() {
         <Modal isOpen={isModalOpen} onClose={closeModal} title='Create Product'>
           <p>{msgCreate?.message}</p>
           <div className='mt-4 flex justify-end space-x-2'>
-            <button onClick={closeModal} className='btn--gradient'>
+            <button onClick={closeModal} className='btn--gradient btn--md'>
               OK
             </button>
           </div>

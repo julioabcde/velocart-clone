@@ -1,5 +1,5 @@
 import { PaginatedData, PaginationParam, RequestStructure } from "@/models/GeneralDTO";
-import { CreateEditProductDTO, Product, ProductByProductIdDTO, ProductDTO } from "@/models/Product";
+import { CreateEditProductDTO, Product, ProductByProductIdDTO } from "@/models/Product";
 import { GeneralService } from "../GeneralService";
 
 export class ProductService {

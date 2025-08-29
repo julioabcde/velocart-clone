@@ -1,3 +1,5 @@
+import { DropdownOption } from "./GeneralDTO";
+
 export interface Product {
   id?: number;
   productId: string;
@@ -7,16 +9,8 @@ export interface Product {
   unit?: string;
   basePrice?: number;
   sellingPrice?: number;
+  suppliers?: DropdownOption[];
   status?: string;
-}
-
-export interface ProductDTO {
-  productId: string;
-  categoryId?: number;
-  productName?: string;
-  unit?: string;
-  basePrice?: number;
-  sellingPrice?: number;
 }
 
 export interface CreateEditProductDTO {
@@ -26,6 +20,7 @@ export interface CreateEditProductDTO {
   unit: string;
   basePrice: number;
   sellingPrice: number;
+  suppliers?: number[];
 }
 
 export interface EditProductDTO {
@@ -36,6 +31,7 @@ export interface EditProductDTO {
   unit: string;
   basePrice: number;
   sellingPrice: number;
+  suppliers?: DropdownOption[];
 }
 
 export interface ProductByProductIdDTO {

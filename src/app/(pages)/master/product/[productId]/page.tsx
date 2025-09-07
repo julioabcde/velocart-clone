@@ -130,7 +130,7 @@ export default function ViewEditProduct() {
       sellingPrice: selectedProduct?.sellingPrice ?? 0,
       suppliers: selectedProduct?.suppliers?.map((s) => Number(s.value)) ?? [],
     });
-    
+
     setLoading(false);
   };
 
@@ -199,7 +199,7 @@ export default function ViewEditProduct() {
       <div className='min-h-screen bg-slate-50 p-6'>
         <div className='mx-auto max-w-6xl rounded-2xl bg-white p-6 shadow'>
           <h1 className='mb-4 text-center text-xl font-bold'>Edit Product</h1>
-          <form onSubmit={handleSubmitEdit(submitEdit)} className='space-y-5'>
+          <form onSubmit={handleSubmitEdit(submitEdit)} className='space-y-5' noValidate>
             {msgEdit?.type === MessageType.ERROR && !isNotFound && (
               <div className='alert--error'>{msgEdit.message}</div>
             )}
@@ -345,12 +345,18 @@ export default function ViewEditProduct() {
                 <input
                   type='number'
                   id='basePrice'
+                  step='0.01'
                   {...registerEdit('basePrice', {
                     required: {
                       value: true,
                       message: 'Base price is required!',
                     },
-                    validate: (value) => value > 0 || 'Base price must be greater than 0!',
+                    validate: {
+                      positive: (value) => value > 0 || 'Base price must be greater than 0!',
+                      decimal: (value) =>
+                        /^\d+(\.\d{1,2})?$/.test(value.toString()) ||
+                        'Base price can have at most 2 decimal places!',
+                    },
                     valueAsNumber: true,
                   })}
                   className={`form-input focus:outline-none focus:ring-1 ${errorsEdit.basePrice ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
@@ -367,12 +373,18 @@ export default function ViewEditProduct() {
                 <input
                   type='number'
                   id='sellingPrice'
+                  step='0.01'
                   {...registerEdit('sellingPrice', {
                     required: {
                       value: true,
                       message: 'Selling price is required!',
                     },
-                    validate: (value) => value > 0 || 'Selling price must be greater than 0!',
+                    validate: {
+                      positive: (value) => value > 0 || 'Selling price must be greater than 0!',
+                      decimal: (value) =>
+                        /^\d+(\.\d{1,2})?$/.test(value.toString()) ||
+                        'Selling price can have at most 2 decimal places!',
+                    },
                     valueAsNumber: true,
                   })}
                   className={`form-input focus:outline-none focus:ring-1 ${errorsEdit.sellingPrice ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}

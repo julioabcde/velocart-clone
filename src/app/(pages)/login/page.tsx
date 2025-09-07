@@ -1,19 +1,21 @@
-"use client";
+'use client';
 
-import Spinner from "@/components/spinner/Spinner";
-import { useAuth } from "@/context/AuthContext";
-import { LoginDTO } from "@/models/Staff";
-import { LoginService } from "@/services/api/LoginService";
-import { AuthService } from "@/services/AuthService";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import Spinner from '@/components/spinner/Spinner';
+import { useAuth } from '@/context/AuthContext';
+import { LoginDTO } from '@/models/Staff';
+import { LoginService } from '@/services/api/LoginService';
+import { AuthService } from '@/services/AuthService';
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Login() {
   const router = useRouter();
 
-  const [staffId, setStaffId] = useState("");
-  const [password, setPassword] = useState("");
+  const [staffId, setStaffId] = useState('');
+  const [password, setPassword] = useState('');
 
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
   const { isLoggedIn, setLoggedIn, isLoggingIn, setLoggingIn } = useAuth();
@@ -30,7 +32,7 @@ export default function Login() {
       setLoading(true);
       setLoggedIn(true);
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push('/dashboard');
       }, 2000);
     }
   }, [router]);
@@ -39,11 +41,11 @@ export default function Login() {
     const errors: Partial<Record<keyof LoginDTO, string>> = {};
 
     if (!staffId.trim()) {
-      errors.staffId = "Staff ID is required!";
+      errors.staffId = 'Staff ID is required!';
     }
 
     if (!password.trim()) {
-      errors.password = "Password is required!";
+      errors.password = 'Password is required!';
     }
 
     setFieldErrors(errors);
@@ -56,12 +58,12 @@ export default function Login() {
       setLoggingIn(true);
 
       const response = await LoginService.login(loginParam);
-      if (response.responseCode != "00") {
+      if (response.responseCode != '00') {
         //must be removed once error pop up is finished
-        console.log("responseDate: ", response.responseDate);
-        console.log("responseCode: ", response.responseCode);
-        console.log("responseDesc: ", response.responseDesc);
-        console.log("message: ", response.message);
+        console.log('responseDate: ', response.responseDate);
+        console.log('responseCode: ', response.responseCode);
+        console.log('responseDesc: ', response.responseDesc);
+        console.log('message: ', response.message);
 
         setError(true);
         return;
@@ -78,21 +80,19 @@ export default function Login() {
       }
 
       const expiresIn = Date.now() + ttl * 60000;
-      localStorage.setItem("staffId", staffId);
-      localStorage.setItem("role", role);
-      localStorage.setItem("token", token);
-      localStorage.setItem("ttl", expiresIn.toString());
+      localStorage.setItem('staffId', staffId);
+      localStorage.setItem('role', role);
+      localStorage.setItem('token', token);
+      localStorage.setItem('ttl', expiresIn.toString());
 
       setTimeout(() => {
         setLoggedIn(true);
-        router.push("/dashboard");
+        router.push('/dashboard');
       }, 1500);
-    }
-    catch (err) {
-      console.error("Fetch error:", err);
+    } catch (err) {
+      console.error('Fetch error:', err);
       setError(true);
-    }
-    finally {
+    } finally {
       setLoading(false);
       setLoggingIn(false);
     }
@@ -107,19 +107,21 @@ export default function Login() {
       await login();
     }
     return;
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="mx-auto max-w-md bg-white rounded-2xl shadow p-6">
-        <h1 className="mb-6 text-2xl font-bold text-center">Login</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
+    <div className='flex justify-center items-center min-h-full bg-slate-50 p-6'>
+      <div className='w-full max-w-md rounded-2xl bg-white p-6 shadow'>
+        <h1 className='mb-6 text-center text-2xl font-bold'>Login</h1>
+        <form onSubmit={handleLogin} className='space-y-4' noValidate>
           <div>
-            <label htmlFor="staffId" className="block text-sm font-medium mb-1">Staff ID <span className="text-red-500">*</span></label>
+            <label htmlFor='staffId' className='mb-1 block text-sm font-medium'>
+              Staff ID <span className='text-red-500'>*</span>
+            </label>
             <input
-              type="text"
-              id="staffId"
-              name="staffId"
+              type='text'
+              id='staffId'
+              name='staffId'
               value={staffId}
               onChange={(e) => {
                 setStaffId(e.target.value);
@@ -127,20 +129,20 @@ export default function Login() {
                   setFieldErrors((prev) => ({ ...prev, staffId: undefined }));
                 }
               }}
-              placeholder="Enter Staff ID"
-              className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.staffId ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
-                }`}
+              placeholder='Enter Staff ID'
+              className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.staffId ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
             />
-            {fieldErrors.staffId && (
-              <p className="text-sm text-red-600">{fieldErrors.staffId}</p>
-            )}
+            {fieldErrors.staffId && <p className='text-sm text-red-600'>{fieldErrors.staffId}</p>}
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">Password <span className="text-red-500">*</span></label>
+
+          <div className='relative'>
+            <label htmlFor='password' className='mb-1 block text-sm font-medium'>
+              Password <span className='text-red-500'>*</span>
+            </label>
             <input
-              type="password"
-              id="password"
-              name="password"
+              type={showPassword ? 'text' : 'password'}
+              id='password'
+              name='password'
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -148,27 +150,32 @@ export default function Login() {
                   setFieldErrors((prev) => ({ ...prev, password: undefined }));
                 }
               }}
-              placeholder="Enter Password"
-              className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+              placeholder='Enter Password'
+              className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring ${fieldErrors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
             />
-            {fieldErrors.password && (
-              <p className="text-sm text-red-600">{fieldErrors.password}</p>
-            )}
+            <button
+              type='button'
+              onClick={() => setShowPassword(!showPassword)}
+              className={`absolute inset-y-[43px] right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 ${password === '' ? 'hidden' : 'flex items-center'}`}
+            >
+              {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+            </button>
+            {fieldErrors.password && <p className='text-sm text-red-600'>{fieldErrors.password}</p>}
           </div>
 
-          <div className="flex items-center justify-center pt-4 gap-5">
+          <div className='flex items-center justify-center gap-5 pt-4'>
             <button
-              type="submit"
+              type='submit'
               disabled={isLoading}
-              className="text-[15px] px-3.5 py-2.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 disabled:opacity-50"
+              className='rounded-xl bg-green-600 px-3.5 py-2.5 text-[15px] font-semibold text-white hover:bg-green-700 disabled:opacity-50'
             >
               Login
             </button>
           </div>
         </form>
 
-        {isLoggingIn && <Spinner message="Logging in... Please wait." />}
-        {isLoading && isLoggedIn && <Spinner message="Logged in! Redirecting..." />}
+        {isLoggingIn && <Spinner message='Logging in... Please wait.' />}
+        {isLoading && isLoggedIn && <Spinner message='Logged in! Redirecting...' />}
       </div>
     </div>
   );

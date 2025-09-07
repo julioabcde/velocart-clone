@@ -179,7 +179,7 @@ export default function EditProductForm({ data }: { data: Product }) {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="mx-auto max-w-6xl bg-white rounded-2xl shadow p-6">
         <h1 className="mb-6 text-2xl font-bold text-center">Edit Product</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="productId" className="block text-sm font-medium mb-1">Product ID</label>

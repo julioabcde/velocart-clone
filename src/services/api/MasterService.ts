@@ -40,4 +40,17 @@ export class MasterService {
     };
     return GeneralService.callApi<DropdownOption[]>(request);
   }
+
+  static getMasterProductBySupplier(supplierId: number, search?: string) {
+    let apiUrl = `/master/productBySupplier?supplierId=${encodeURIComponent(supplierId)}`;
+    if (search) {
+      apiUrl += `&search=${encodeURIComponent(search)}`;
+    }
+
+    const request: RequestStructure = {
+      api: apiUrl,
+      method: 'GET',
+    };
+    return GeneralService.callApi<DropdownOption[]>(request);
+  }
 }

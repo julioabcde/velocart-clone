@@ -370,7 +370,7 @@ export default function MasterSupplier() {
         size='md'
         backdrop='blur'
       >
-        <form onSubmit={handleSubmitCreate(submitCreate)} className='space-y-5'>
+        <form onSubmit={handleSubmitCreate(submitCreate)} className='space-y-5' noValidate>
           {msgCreate && (
             <div
               className={msgCreate.type === MessageType.SUCCESS ? 'alert--success' : 'alert--error'}
@@ -546,7 +546,7 @@ export default function MasterSupplier() {
         size='md'
         backdrop='blur'
       >
-        <form onSubmit={handleSubmitEdit(submitEdit)} className='space-y-5'>
+        <form onSubmit={handleSubmitEdit(submitEdit)} className='space-y-5' noValidate>
           {msgEdit && (
             <div
               className={msgEdit.type === MessageType.SUCCESS ? 'alert--success' : 'alert--error'}

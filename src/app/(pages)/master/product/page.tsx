@@ -210,6 +210,8 @@ export default function MasterProduct() {
                   <th className='text-center'>PRODUCT ID</th>
                   <th className='text-center'>CATEGORY</th>
                   <th className='text-center'>PRODUCT NAME</th>
+                  <th className='text-center'>STOCK</th>
+                  <th className='text-center'>UNIT</th>
                   <th className='text-center'>SELLING PRICE</th>
                 </tr>
               </thead>
@@ -250,6 +252,8 @@ export default function MasterProduct() {
                       <td className='text-center'>{item.productId}</td>
                       <td className='max-w-[70px] truncate text-center'>{item.categoryName}</td>
                       <td className='max-w-[200px] truncate text-center'>{item.productName}</td>
+                      <td className='max-w-[200px] truncate text-center'>{FormatterService.formatStock(item.stock)}</td>
+                      <td className='max-w-[200px] truncate text-center'>{item.unit}</td>
                       <td className='text-center'>
                         {FormatterService.formatRupiah(item.sellingPrice)}
                       </td>
@@ -296,6 +300,10 @@ export default function MasterProduct() {
             <div>
               <div className='text-slate-500'>Category</div>
               <div className='font-medium'>{product.categoryName}</div>
+            </div>
+            <div>
+              <div className='text-slate-500'>Stock</div>
+              <div className='font-medium'>{FormatterService.formatStock(product.stock)}</div>
             </div>
             <div>
               <div className='text-slate-500'>Unit</div>

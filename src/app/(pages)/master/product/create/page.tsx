@@ -131,7 +131,7 @@ export default function CreateProduct() {
       <div className='min-h-screen bg-slate-50 p-6'>
         <div className='mx-auto max-w-6xl rounded-2xl bg-white p-6 shadow'>
           <h1 className='mb-4 text-center text-xl font-bold'>Create Product</h1>
-          <form onSubmit={handleSubmitCreate(submitCreate)} className='space-y-5'>
+          <form onSubmit={handleSubmitCreate(submitCreate)} className='space-y-5' noValidate>
             {msgCreate?.type === MessageType.ERROR && (
               <div className='alert--error'>{msgCreate.message}</div>
             )}
@@ -280,12 +280,18 @@ export default function CreateProduct() {
                 <input
                   type='number'
                   id='basePrice'
+                  step='0.01'
                   {...registerCreate('basePrice', {
                     required: {
                       value: true,
                       message: 'Base price is required!',
                     },
-                    validate: (value) => value > 0 || 'Base price must be greater than 0!',
+                    validate: {
+                      positive: (value) => value > 0 || 'Base price must be greater than 0!',
+                      decimal: (value) =>
+                        /^\d+(\.\d{1,2})?$/.test(value.toString()) ||
+                        'Base price can have at most 2 decimal places!',
+                    },
                     valueAsNumber: true,
                   })}
                   className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.basePrice ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
@@ -302,12 +308,18 @@ export default function CreateProduct() {
                 <input
                   type='number'
                   id='sellingPrice'
+                  step='0.01'
                   {...registerCreate('sellingPrice', {
                     required: {
                       value: true,
                       message: 'Selling price is required!',
                     },
-                    validate: (value) => value > 0 || 'Selling price must be greater than 0!',
+                    validate: {
+                      positive: (value) => value > 0 || 'Selling price must be greater than 0!',
+                      decimal: (value) =>
+                        /^\d+(\.\d{1,2})?$/.test(value.toString()) ||
+                        'Selling price can have at most 2 decimal places!',
+                    },
                     valueAsNumber: true,
                   })}
                   className={`form-input focus:outline-none focus:ring-1 ${errorsCreate.sellingPrice ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
@@ -337,8 +349,8 @@ export default function CreateProduct() {
                       <AsyncSelect
                         inputId='suppliers'
                         cacheOptions
-                        defaultOptions={suppliers || []} // preload if available
-                        loadOptions={debouncedGetAllSuppliers} // async loader
+                        defaultOptions={suppliers || []}
+                        loadOptions={debouncedGetAllSuppliers}
                         isSearchable
                         isMulti
                         placeholder='Select suppliers...'

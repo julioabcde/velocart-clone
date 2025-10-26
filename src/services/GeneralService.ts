@@ -27,7 +27,40 @@ export class GeneralService {
       const response = await fetch(BASE_URL + api, apiRequestConfig);
       clearTimeout(timer);
       return (await response.json()) as GeneralResponse<TData>;
-    } catch (e: any) {
+    } catch (e: unknown) {
+      clearTimeout(timer);
+      throw e;
+    }
+  }
+
+  static async callDownloadApi(
+    api: string,
+    method: string = 'GET',
+    timeout = 30000
+  ): Promise<Blob> {
+    const token = localStorage.getItem('token');
+
+    const headers: HeadersInit = {
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+
+    const apiRequestConfig: RequestInit = {
+      method,
+      headers,
+    };
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    apiRequestConfig.signal = controller.signal;
+
+    try {
+      const response = await fetch(BASE_URL + api, apiRequestConfig);
+      clearTimeout(timer);
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      return await response.blob();
+    } catch (e: unknown) {
       clearTimeout(timer);
       throw e;
     }

@@ -49,7 +49,7 @@ export class ProductService {
   }
 
   static deleteProduct(param: ProductByProductIdDTO) {
-    const request: RequestStructure<any> = {
+    const request: RequestStructure<unknown> = {
       api: "/product/delete",
       method: "PATCH",
       body: param,

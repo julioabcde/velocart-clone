@@ -1,4 +1,4 @@
-import { Database, Computer, ChartLine } from 'lucide-react';
+import { Database, Computer, ChartLine, Warehouse, ClipboardPlus } from 'lucide-react';
 
 export const SIDEBAR_CONSTANT = [
   {
@@ -19,16 +19,8 @@ export const SIDEBAR_CONSTANT = [
         href: '/manage-daily-capital',
       },
       {
-        label: 'Product',
-        href: '/master/product',
-      },
-      {
         label: 'Staff',
         href: '/master/staff',
-      },
-      {
-        label: 'Stock',
-        href: '/master/stock',
       },
       {
         label: 'Supplier',
@@ -37,13 +29,36 @@ export const SIDEBAR_CONSTANT = [
     ],
   },
   {
+    label: 'Inventory Management',
+    icon: Warehouse,
+    subItem: [
+      {
+        label: 'Product',
+        href: '/inventory/product'
+      },
+      {
+        label: 'Stock',
+        href: '/inventory/stock'
+      }
+    ]
+  },
+  {
     label: 'Salesforce',
-    href: '/point-of-sales',
     icon: Computer,
     subItem: [
       {
         label: 'Point of Sales',
         href: '/manage-cashier',
+      },
+    ],
+  },
+  {
+    label: 'Report',
+    icon: ClipboardPlus,
+    subItem: [
+      {
+        label: 'Stock',
+        href: '/inventory/stock',
       },
     ],
   },

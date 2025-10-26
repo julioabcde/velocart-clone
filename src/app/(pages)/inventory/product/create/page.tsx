@@ -119,11 +119,11 @@ export default function CreateProduct() {
   };
 
   const onCancel = () => {
-    router.push('/master/product');
+    router.push('/inventory/product');
   };
 
   const closeModal = () => {
-    router.push('/master/product');
+    router.push('/inventory/product');
   };
 
   return (

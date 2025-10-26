@@ -1,22 +1,25 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { AuthService } from "@/services/AuthService";
-import { LoginService } from "@/services/api/LoginService";
-import { useRouter } from "next/navigation";
+import { createContext, useContext, useState, useEffect } from 'react';
+import { AuthService } from '@/services/AuthService';
+import { LoginService } from '@/services/api/LoginService';
+import { useRouter } from 'next/navigation';
 
-const AuthContext = createContext({
-  isLoggedIn: false,
-  setLoggedIn: (_: boolean) => { },
-  isLoggingIn: false,
-  setLoggingIn: (_: boolean) => { },
-  isLoggingOut: false,
-  setLoggingOut: (_: boolean) => { },
-  isAuthChecking: false,
-  setAuthChecking: (_: boolean) => { },
-  login: () => { },
-  logout: () => { },
-});
+interface AuthContextType {
+  isLoggedIn: boolean;
+  setLoggedIn: (value: boolean) => void;
+  isLoggingIn: boolean;
+  setLoggingIn: (value: boolean) => void;
+  isLoggingOut: boolean;
+  setLoggingOut: (value: boolean) => void;
+  isAuthChecking: boolean;
+  setAuthChecking: (value: boolean) => void;
+  login: () => void;
+  logout: () => void;
+}
+
+// Use `as AuthContextType` to avoid creating dummy unused params
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -28,8 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (AuthService.isTokenExpired()) {
       setLoggedIn(false);
-    }
-    else {
+    } else {
       setLoggedIn(true);
     }
     setTimeout(() => {
@@ -38,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = () => {
-    router.push("/login");
+    router.push('/login');
   };
 
   const logout = () => {
@@ -51,12 +53,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoggedIn(false);
     }, 1500);
     setTimeout(() => {
-      router.push("/login");
+      router.push('/login');
     }, 2500);
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setLoggedIn, isLoggingIn, setLoggingIn, isLoggingOut, setLoggingOut, isAuthChecking, setAuthChecking, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        setLoggedIn,
+        isLoggingIn,
+        setLoggingIn,
+        isLoggingOut,
+        setLoggingOut,
+        isAuthChecking,
+        setAuthChecking,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

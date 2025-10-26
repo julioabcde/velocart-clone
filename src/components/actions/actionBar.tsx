@@ -53,7 +53,6 @@ export function RowActions<T>({
   onEdit,
   onDelete,
   onPrint,
-  confirmDelete = true,
   className = '',
   disableView,
   disableEdit,
@@ -65,18 +64,12 @@ export function RowActions<T>({
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
   onPrint?: (row: T) => void;
-  confirmDelete?: boolean;
   className?: string;
   disableView?: (row: T) => boolean;
   disableEdit?: (row: T) => boolean;
   disableDelete?: (row: T) => boolean;
   disablePrint?: (row: T) => boolean;
 }) {
-  const handleDelete = () => {
-    if (!onDelete) return;
-    if (!confirmDelete || window.confirm('Yakin hapus item ini?')) onDelete(item);
-  };
-
   return (
     <div className={`inline-flex items-center justify-end gap-2 ${className}`}>
       {onView && (

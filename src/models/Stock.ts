@@ -1,42 +1,60 @@
 export interface Stock {
+  id: number;
+  productId?: string;
+  productName?: string;
   supplierId?: number;
-  productId: string;
-  action: string;
-  invoiceDate: Date;
-  receivedDate: Date;
-  currentStock: number;
-  newStock: number;
-  totalStock: number;
-  notes: string;
+  supplierName?: string;
+  action?: string;
+  flow?: string;
+  invoiceNo?: string;
+  invoiceDate?: string;
+  transactionDate?: string;
+  currentStock?: number;
+  stock?: number;
+  unit?: string;
+  notes?: string;
+  disabledFlag?: string;
 }
-
-export interface IncomingStock {
+export interface StockForm {
   supplierId: number;
   supplierName: string;
   productId: string;
   productName: string;
+  invoiceNo?: string;
   invoiceDate: string;
-  receivedDate: string;
+  transactionDate: string;
   currentStock: number;
-  incomingStock: number;
+  newStock: number;
   notes: string;
 }
 
-export interface CreateIncomingStockDTO {
-  supplierId?: number;
+export interface StockDTO {
+  supplierId: number;
   productId: string;
+  invoiceNo?: string;
   invoiceDate: string;
-  receivedDate: string;
-  incomingStock: number;
+  transactionDate: string;
+  newStock: number;
   notes: string;
 }
 
-export interface OutgoingStock {
+export interface CreateStockDTO {
+  action: string;
+  stocks: StockDTO[];
+}
+
+export interface StockByIdDTO {
+  id: number;
+}
+
+export interface EditStockDTO {
+  action: string;
+  id: number;
+  supplierId: number;
   productId: string;
-  productName: string;
+  invoiceNo?: string;
   invoiceDate: string;
-  deliveryDate: string;
-  currentStock: number;
-  outgoingStock: number;
+  transactionDate: string;
+  newStock: number;
   notes: string;
 }

@@ -13,7 +13,7 @@ import { CreateSupplierDTO, EditSupplierDTO, Supplier, SupplierByIdDTO } from '@
 import { MessageState } from '@/models/UIModels';
 import { SupplierService } from '@/services/api/SupplierService';
 import { Download, Plus, RefreshCw } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function MasterSupplier() {
@@ -58,7 +58,7 @@ export default function MasterSupplier() {
     [page, pageSize, query, filter]
   );
 
-  const getAllSuppliers = async () => {
+  const getAllSuppliers = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
@@ -74,11 +74,11 @@ export default function MasterSupplier() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getAllSupplierParam]);
 
   useEffect(() => {
     getAllSuppliers();
-  }, [getAllSupplierParam]);
+  }, [getAllSuppliers]);
   // #endregion
 
   // #region CREATE
@@ -117,10 +117,11 @@ export default function MasterSupplier() {
         await getAllSuppliers();
         setOpenCreate(false);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = (error as Error)?.message || ERROR_MSG.GENERAL;
       setMsgCreate({
         type: MessageType.ERROR,
-        message: error?.message || ERROR_MSG.GENERAL,
+        message: msg,
       });
     } finally {
       setSavingCreate(false);
@@ -183,8 +184,12 @@ export default function MasterSupplier() {
         await getAllSuppliers();
         setOpenEdit(false);
       }
-    } catch (error: any) {
-      setMsgEdit({ type: MessageType.ERROR, message: error?.message || ERROR_MSG.GENERAL });
+    } catch (error: unknown) {
+      const msg = (error as Error)?.message || ERROR_MSG.GENERAL;
+      setMsgEdit({
+        type: MessageType.ERROR,
+        message: msg,
+      });
     } finally {
       setSavingEdit(false);
     }
@@ -222,10 +227,11 @@ export default function MasterSupplier() {
         setOpenDelete(false);
         await getAllSuppliers();
       }
-    } catch (e: any) {
+    } catch (error: unknown) {
+      const msg = (error as Error)?.message || ERROR_MSG.GENERAL;
       setMsgDelete({
         type: MessageType.ERROR,
-        message: e?.message || ERROR_MSG.GENERAL,
+        message: msg,
       });
     } finally {
       setDeleting(false);
@@ -678,14 +684,14 @@ export default function MasterSupplier() {
         {msgDelete && <div className='alert--error mb-3'>{msgDelete.message}</div>}
         <p className='text-sm'>
           Are you sure you want to delete the supplier{' '}
-          <span className='font-semibold'>{supplier?.supplierName}</span>?
+          <span className='font-semibold'>{supplier?.supplierName ?? 'N/A'}</span>?
         </p>
         <div className='mt-4 flex justify-end gap-2'>
           <button onClick={() => setOpenDelete(false)} className='btn--soft' disabled={deleting}>
             Cancel
           </button>
           <button
-            onClick={() => submitDelete(Number(supplier?.id!))}
+            onClick={() => submitDelete(Number(supplier?.id ?? 0))}
             className='btn--danger btn--md btn--disabled'
             disabled={deleting}
           >

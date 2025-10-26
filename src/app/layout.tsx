@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import '../styles/card.css';
 import Sidebar from '../components/sidebar/Sidebar';
-import Footer from '../components/footer/footer'
+import Footer from '../components/footer/Footer'
 import Header from '../components/header/HeaderIndex'
 import { AuthProvider } from '@/context/AuthContext';
 import GlobalWrapper from '@/components/global-wrapper/GlobalWrapper';

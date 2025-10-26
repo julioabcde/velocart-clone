@@ -7,7 +7,3 @@ export interface Discount {
     startDate: Date;
     endDate: Date;
 }
-
-export interface DiscountDTO {
-    
-}

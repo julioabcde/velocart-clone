@@ -70,7 +70,7 @@ export default function MasterProduct() {
 
   // #region CREATE
   const onCreate = () => {
-    router.push('/master/product/create');
+    router.push('/inventory/product/create');
   };
   // #endregion
 
@@ -104,7 +104,7 @@ export default function MasterProduct() {
 
   // #region EDIT
   const onEdit = (product: Product) => {
-    router.push(`/master/product/${product.productId}`);
+    router.push(`/inventory/product/${product.productId}`);
   };
   // #endregion
 

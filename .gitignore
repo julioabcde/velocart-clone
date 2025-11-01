@@ -12,26 +12,42 @@
 
 # testing
 /coverage
+*.lcov
+.nyc_output
 
 # next.js
 /.next/
 /out/
+.next
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files
+.env
+.env*.local
+.env.production
+# Allow .env.example to be committed
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +55,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# turbo
+.turbo
+
+# cache
+.eslintcache
+.cache
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+
+# Local data
+/tmp
+/.temp

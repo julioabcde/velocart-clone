@@ -26,6 +26,10 @@ export const SIDEBAR_CONSTANT = [
         label: 'Supplier',
         href: '/master/supplier',
       },
+      {
+        label: 'Tax',
+        href: '/master/tax',
+      },
     ],
   },
   {
